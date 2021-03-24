@@ -27,7 +27,9 @@ namespace doggo
         {
             services.AddControllersWithViews();
 
-            services.AddDbContext<DBContext>(options => options.UseSqlServer(Configuration.GetConnectionString("Userservices.AddDbContext<UserContext")));
+            services.AddDbContext<DBContext>(options => {
+                options.UseMySql(Configuration.GetConnectionString("mysql"));
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -40,10 +42,8 @@ namespace doggo
             else
             {
                 app.UseExceptionHandler("/Home/Error");
-                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-                app.UseHsts();
             }
-            app.UseHttpsRedirection();
+            // app.UseHttpsRedirection();
             app.UseStaticFiles();
 
             app.UseRouting();

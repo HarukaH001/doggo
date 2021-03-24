@@ -10,6 +10,6 @@ namespace doggo.Data
         {
         }
 
-        public DbSet<User> User { get; set; }
+        public DbSet<UserDTO> User { get; set; }
     }
 }
