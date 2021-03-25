@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace doggo.Models
 {
-    public class UserDTO
+    public class UserDO
     {
         public int Id { get; set; }
 
@@ -12,7 +12,7 @@ namespace doggo.Models
         public string Email { get; set; }
 
         public string Password { get; set; }
-        public int UserRole { get; set; }
+        public string UserRole { get; set; }
 
         public DateTime CreatedDate { get; set; }
 

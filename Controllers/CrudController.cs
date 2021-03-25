@@ -10,11 +10,11 @@ using doggo.Models;
 
 namespace doggo.Controllers
 {
-    public class UserController : Controller
+    public class CrudController : Controller
     {
         private readonly DBContext _context;
 
-        public UserController(DBContext context)
+        public CrudController(DBContext context)
         {
             _context = context;
         }
@@ -22,7 +22,21 @@ namespace doggo.Controllers
         // GET: User
         public async Task<IActionResult> Index()
         {
-            return View(await _context.User.ToListAsync());
+            var res = ( from u in _context.User
+                        join r in _context.Role
+                        on u.UserRole
+                        equals r.Id
+                        select new UserDO{
+                            Id = u.Id,
+                            Name = u.Name,
+                            Email = u.Email,
+                            Password = u.Password,
+                            CreatedDate = u.CreatedDate,
+                            UpdatedDate = u.UpdatedDate,
+                            UserRole = r.Name
+                        });
+
+            return View(await res.ToListAsync());
         }
 
         // GET: User/Details/5
@@ -63,7 +77,7 @@ namespace doggo.Controllers
                 user.Name = u.Name;
                 user.Email = u.Email;
                 user.Password = u.Password;
-                user.Role = "User";
+                user.UserRole = 1;
                 user.CreatedDate = DateTime.Now;
                 user.UpdatedDate = DateTime.Now;
                 

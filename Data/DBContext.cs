@@ -11,5 +11,6 @@ namespace doggo.Data
         }
 
         public DbSet<UserDTO> User { get; set; }
+        public DbSet<RoleDTO> Role { get; set; }
     }
 }
