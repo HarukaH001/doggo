@@ -44,7 +44,7 @@ namespace doggo.Controllers
                     if (user.Password == credential.Password)
                     {
 
-                        return RedirectToAction("Index", "Home");
+                        return RedirectToAction("Index", "Crud");
                     }
                 }
                 ModelState.AddModelError(string.Empty, "เข้าสู่ระบบไม่สำเร็จ");

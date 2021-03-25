@@ -53,7 +53,7 @@ namespace doggo.Controllers
                 if(res.Any()) {
                     UserDTO identity = await res.FirstOrDefaultAsync();
                     if(identity.Password == credential.Password){
-                        return RedirectToAction("Index","Home");
+                        return RedirectToAction("Index","Crud");
                     }
                 }
 

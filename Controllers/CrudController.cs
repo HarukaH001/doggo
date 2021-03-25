@@ -26,6 +26,7 @@ namespace doggo.Controllers
                         join r in _context.Role
                         on u.UserRole
                         equals r.Id
+                        orderby u.Id ascending
                         select new UserDO{
                             Id = u.Id,
                             Name = u.Name,
@@ -109,7 +110,7 @@ namespace doggo.Controllers
         // more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,CreatedDate,UpdatedDate,Email,Password")] UserDTO userDTO)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,CreatedDate,UpdatedDate,Email,Password,UserRole")] UserDTO userDTO)
         {
             if (id != userDTO.Id)
             {
@@ -120,6 +121,7 @@ namespace doggo.Controllers
             {
                 try
                 {
+                    userDTO.UpdatedDate = DateTime.Now;
                     _context.Update(userDTO);
                     await _context.SaveChangesAsync();
                 }
