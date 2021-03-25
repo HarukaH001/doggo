@@ -10,7 +10,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using doggo.Data;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Identity;
 
 namespace doggo
 {
@@ -28,7 +27,8 @@ namespace doggo
         {
             services.AddControllersWithViews();
 
-            services.AddDbContext<DBContext>(options => {
+            services.AddDbContext<DBContext>(options =>
+            {
                 options.UseMySql(Configuration.GetConnectionString("mysql"));
             });
         }
