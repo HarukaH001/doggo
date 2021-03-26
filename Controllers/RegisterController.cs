@@ -43,7 +43,9 @@ namespace doggo.Controllers
                 if (res.Error == false)
                 {
                     UserDTO user = res.Data.UserInfo;
-                    // _httpContextAccessor.HttpContext.Response.Cookies.Append("jwt", res.Data.Token, new CookieOptions { Expires = DateTime.UtcNow.AddHours(4) });
+                    _httpContextAccessor.HttpContext.Response.Cookies.Append("jwt", res.Data.Token, new CookieOptions());
+                    _httpContextAccessor.HttpContext.Response.Cookies.Append("_i", user.Id.ToString(), new CookieOptions());
+                    _httpContextAccessor.HttpContext.Response.Cookies.Append("_r", user.UserRole.Substring(0,1), new CookieOptions());
                     return RedirectToAction("Index", "Crud");
                 }
                 ModelState.AddModelError(string.Empty, "สมัครสมาชิกไม่สำเร็จ");

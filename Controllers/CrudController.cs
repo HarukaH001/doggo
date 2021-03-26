@@ -13,7 +13,6 @@ using System.Security.Claims;
 
 namespace doggo.Controllers
 {
-    [Authorize]
     public class CrudController : Controller
     {
         private readonly DBContext _context;
@@ -25,7 +24,6 @@ namespace doggo.Controllers
         // GET: User
         public async Task<IActionResult> Index()
         {
-            Console.WriteLine(User.FindFirst(ClaimTypes.Name).Value);
             var res = ( from u in _context.User
                         orderby u.Id ascending
                         select new UserView{

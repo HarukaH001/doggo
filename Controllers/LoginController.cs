@@ -24,8 +24,6 @@ namespace doggo.Controllers
             _httpContextAccessor = httpContextAccessor;
         }
 
-
-        [AllowAnonymous]
         public IActionResult Index()
         {
             return View();
@@ -33,7 +31,6 @@ namespace doggo.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [AllowAnonymous]
         public IActionResult Index([Bind("Email,Password")] LoginDTO credential)
         {
             if (ModelState.IsValid)
@@ -43,7 +40,9 @@ namespace doggo.Controllers
                 if (res.Error == false)
                 {
                     UserDTO user = res.Data.UserInfo;
-                    // _httpContextAccessor.HttpContext.Response.Cookies.Append("jwt", res.Data.Token, new CookieOptions());
+                    _httpContextAccessor.HttpContext.Response.Cookies.Append("jwt", res.Data.Token, new CookieOptions());
+                    _httpContextAccessor.HttpContext.Response.Cookies.Append("_i", user.Id.ToString(), new CookieOptions());
+                    _httpContextAccessor.HttpContext.Response.Cookies.Append("_r", user.UserRole.Substring(0,1), new CookieOptions());
                     return RedirectToAction("Index", "Crud");
                     // return View();
                 }
