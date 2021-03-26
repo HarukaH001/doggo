@@ -89,8 +89,9 @@ namespace doggo
 
             app.UseCookiePolicy();
 
-            app.UseAuthorization();
             app.UseAuthentication();
+            
+            app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {

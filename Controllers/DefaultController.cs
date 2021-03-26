@@ -13,18 +13,20 @@ using doggo.Services;
 
 namespace doggo.Controllers{
     [Authorize]
-    public class ApiController : Controller
+    [Route("api/[action]")]
+    [ApiController]
+    public class DefaultController : Controller
     {
         private IUserService _userService;
 
-        public ApiController(IUserService userService)
+        public DefaultController(IUserService userService)
         {
             _userService = userService;
         }
 
         [HttpPost]
         [AllowAnonymous]
-        public ActionResult<Backpass> authenticate([FromBody] LoginDTO credential)
+        public ActionResult<Backpass> Authenticate([FromBody] LoginDTO credential)
         {
             var backpass = _userService.Authenticate(credential);
             return backpass;
@@ -32,7 +34,7 @@ namespace doggo.Controllers{
 
         [Authorize(Roles = "Admin")]
         [HttpGet]
-        public IActionResult GetAll()
+        public IActionResult users()
         {
             var users =  _userService.GetAll();
             return Ok(users);
