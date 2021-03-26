@@ -6,18 +6,22 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using doggo.Data;
 using doggo.Models;
+using doggo.Services;
 
 namespace doggo.Controllers
 {
     public class RegisterController : Controller
     {
-        private readonly DBContext db;
+        private IUserService _userService;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public RegisterController(DBContext context)
+        public RegisterController(IUserService userService, IHttpContextAccessor httpContextAccessor)
         {
-            db = context;
+            _userService = userService;
+            _httpContextAccessor = httpContextAccessor;
         }
 
 
@@ -30,33 +34,18 @@ namespace doggo.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [AllowAnonymous]
-        public async Task<IActionResult> Index([Bind("Name,Email,Password,ConfirmPassword")] RegisterView credential)
+        public IActionResult Index([Bind("Name,Email,Password,ConfirmPassword")] RegisterView credential)
         {
             if (ModelState.IsValid)
             {
-                UserDTO user = new UserDTO();
-                user.Id = credential.Id;
-                user.Name = credential.Name;
-                user.Email = credential.Email;
-                user.Password = credential.Password;
-                user.UserRole = 1;
-                user.CreatedDate = DateTime.Now;
-                user.UpdatedDate = DateTime.Now;
+                var res = _userService.SignUpAndAuthenticate(credential);
 
-                db.Add(user);
-                await db.SaveChangesAsync();
-
-                var res = ( from u in db.User
-                            where u.Email == credential.Email
-                            select u );
-
-                if(res.Any()) {
-                    UserDTO identity = await res.FirstOrDefaultAsync();
-                    if(identity.Password == credential.Password){
-                        return RedirectToAction("Index","Crud");
-                    }
+                if (res.Error == false)
+                {
+                    UserDTO user = res.Data.UserInfo;
+                    // _httpContextAccessor.HttpContext.Response.Cookies.Append("jwt", res.Data.Token, new CookieOptions { Expires = DateTime.UtcNow.AddHours(4) });
+                    return RedirectToAction("Index", "Crud");
                 }
-
                 ModelState.AddModelError(string.Empty, "สมัครสมาชิกไม่สำเร็จ");
             }
             return View(credential);

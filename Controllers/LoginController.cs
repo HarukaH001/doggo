@@ -6,18 +6,22 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using doggo.Data;
 using doggo.Models;
+using doggo.Services;
 
 namespace doggo.Controllers
 {
     public class LoginController : Controller
     {
-        private readonly DBContext db;
+        private readonly IUserService _userService;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public LoginController(DBContext context)
+        public LoginController(IUserService userService, IHttpContextAccessor httpContextAccessor)
         {
-            db = context;
+            _userService = userService;
+            _httpContextAccessor = httpContextAccessor;
         }
 
 
@@ -30,22 +34,18 @@ namespace doggo.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [AllowAnonymous]
-        public async Task<IActionResult> Index([Bind("Email,Password")] LoginDTO credential)
+        public IActionResult Index([Bind("Email,Password")] LoginDTO credential)
         {
             if (ModelState.IsValid)
             {
-                var res = (from u in db.User
-                           where u.Email == credential.Email
-                           select u);
+                var res = _userService.Authenticate(credential);
 
-                if (res.Any())
+                if (res.Error == false)
                 {
-                    UserDTO user = await res.FirstOrDefaultAsync();
-                    if (user.Password == credential.Password)
-                    {
-
-                        return RedirectToAction("Index", "Crud");
-                    }
+                    UserDTO user = res.Data.UserInfo;
+                    // _httpContextAccessor.HttpContext.Response.Cookies.Append("jwt", res.Data.Token, new CookieOptions());
+                    return RedirectToAction("Index", "Crud");
+                    // return View();
                 }
                 ModelState.AddModelError(string.Empty, "เข้าสู่ระบบไม่สำเร็จ");
             }

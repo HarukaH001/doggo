@@ -7,13 +7,15 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using doggo.Data;
 using doggo.Models;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authorization;
 
 namespace doggo.Controllers
 {
+    // [Authorize]
     public class CrudController : Controller
     {
         private readonly DBContext _context;
-
         public CrudController(DBContext context)
         {
             _context = context;
@@ -23,18 +25,15 @@ namespace doggo.Controllers
         public async Task<IActionResult> Index()
         {
             var res = ( from u in _context.User
-                        join r in _context.Role
-                        on u.UserRole
-                        equals r.Id
                         orderby u.Id ascending
-                        select new UserDO{
+                        select new UserView{
                             Id = u.Id,
                             Name = u.Name,
                             Email = u.Email,
                             Password = u.Password,
                             CreatedDate = u.CreatedDate,
                             UpdatedDate = u.UpdatedDate,
-                            UserRole = r.Name
+                            UserRole = u.UserRole
                         });
 
             return View(await res.ToListAsync());
@@ -69,7 +68,7 @@ namespace doggo.Controllers
         // more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Name,Email,Password,ConfirmPassword")] User u)
+        public async Task<IActionResult> Create([Bind("Name,Email,Password,ConfirmPassword")] RegisterView u)
         {
             if (ModelState.IsValid)
             {
@@ -78,7 +77,7 @@ namespace doggo.Controllers
                 user.Name = u.Name;
                 user.Email = u.Email;
                 user.Password = u.Password;
-                user.UserRole = 1;
+                user.UserRole = "User";
                 user.CreatedDate = DateTime.Now;
                 user.UpdatedDate = DateTime.Now;
                 

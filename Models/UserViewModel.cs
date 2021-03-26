@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace doggo.Models
 {
-    public class UserDO
+    public class UserView
     {
         public int Id { get; set; }
 
