@@ -6,13 +6,14 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http;
 using doggo.Data;
 using doggo.Models;
 using doggo.Services;
 
 namespace doggo.Controllers{
-    [Authorize]
+    [Authorize(AuthenticationSchemes =  JwtBearerDefaults.AuthenticationScheme)]
     [Route("api/[action]")]
     [ApiController]
     public class DefaultController : Controller

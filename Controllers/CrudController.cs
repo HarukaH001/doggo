@@ -13,6 +13,7 @@ using System.Security.Claims;
 
 namespace doggo.Controllers
 {
+    [Authorize]
     public class CrudController : Controller
     {
         private readonly DBContext _context;
