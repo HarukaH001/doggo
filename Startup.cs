@@ -57,7 +57,7 @@ namespace doggo
             })
             .AddCookie(opts=>{
                 opts.LoginPath = "/login";
-                opts.AccessDeniedPath = "/crud";
+                opts.AccessDeniedPath = "/home";
             })
             .AddJwtBearer(x =>
             {

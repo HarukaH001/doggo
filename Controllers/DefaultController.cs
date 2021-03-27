@@ -27,7 +27,7 @@ namespace doggo.Controllers{
 
         [HttpPost]
         [AllowAnonymous]
-        public ActionResult<Backpass> Authenticate([FromBody] LoginDTO credential)
+        public ActionResult<Backpass> Authenticate([FromBody] LoginView credential)
         {
             var backpass = _userService.Authenticate(credential);
             return backpass;

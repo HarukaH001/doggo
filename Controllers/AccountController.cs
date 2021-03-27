@@ -40,7 +40,7 @@ namespace doggo.Controllers
         public IActionResult Login()
         {
             if(User.Identity.IsAuthenticated) {
-                return RedirectToAction("Index", "Crud");
+                return RedirectToAction("Index", "Home");
             }
             return View();
         }
@@ -49,10 +49,10 @@ namespace doggo.Controllers
         [ValidateAntiForgeryToken]
         [AllowAnonymous]
         [Route("[action]")]
-        public async Task<IActionResult> Login([Bind("Email,Password")] LoginDTO credential)
+        public async Task<IActionResult> Login([Bind("Email,Password")] LoginView credential)
         {
             if(User.Identity.IsAuthenticated) {
-                return RedirectToAction("Index", "Crud");
+                return RedirectToAction("Index", "Home");
             }
             if (ModelState.IsValid)
             {
@@ -62,7 +62,7 @@ namespace doggo.Controllers
                 {
                     ClaimsPrincipal claims = res.Data;
                     await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, claims);
-                    return RedirectToAction("Index", "Crud");
+                    return RedirectToAction("Index", "Home");
                 }
                 ModelState.AddModelError(string.Empty, "เข้าสู่ระบบไม่สำเร็จ");
             }
@@ -74,7 +74,7 @@ namespace doggo.Controllers
         public IActionResult Register()
         {
             if(User.Identity.IsAuthenticated) {
-                return RedirectToAction("Index", "Crud");
+                return RedirectToAction("Index", "Home");
             }
             return View();
         }
@@ -86,7 +86,7 @@ namespace doggo.Controllers
         public async Task<IActionResult> Register([Bind("Name,Email,Password,ConfirmPassword")] RegisterView credential)
         {
             if(User.Identity.IsAuthenticated) {
-                return RedirectToAction("Index", "Crud");
+                return RedirectToAction("Index", "Home");
             }
             if (ModelState.IsValid)
             {
@@ -96,7 +96,7 @@ namespace doggo.Controllers
                 {
                     ClaimsPrincipal claims = res.Data;
                     await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, claims);
-                    return RedirectToAction("Index", "Crud");
+                    return RedirectToAction("Index", "Home");
                 }
                 ModelState.AddModelError(string.Empty, "สมัครสมาชิกไม่สำเร็จ");
             }

@@ -7,6 +7,7 @@ using System.Text;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using BC = BCrypt.Net.BCrypt;
 using System.Threading.Tasks;
 using doggo.Models;
 using doggo.Helpers;
@@ -16,8 +17,8 @@ namespace doggo.Services
 {
     public interface IUserService
     {
-        Backpass Authenticate(LoginDTO credential);
-        Backpass CookieAuthenticate(LoginDTO credential);
+        Backpass Authenticate(LoginView credential);
+        Backpass CookieAuthenticate(LoginView credential);
         Backpass SignUpAndAuthenticate(RegisterView credential);
         IEnumerable<UserDTO> GetAll();
         UserDTO GetById(int id);
@@ -34,7 +35,7 @@ namespace doggo.Services
             db = context;
         }
 
-        public Backpass Authenticate(LoginDTO credential)
+        public Backpass Authenticate(LoginView credential)
         {
             var res = (from u in db.User
                        where u.Email == credential.Email
@@ -43,7 +44,7 @@ namespace doggo.Services
             if (res.Any())
             {
                 UserDTO user = res.FirstOrDefault();
-                if (user.Password == credential.Password)
+                if (BC.Verify(credential.Password, user.Password))
                 {
                     user.Password = null;
                     // authentication successful so generate jwt token
@@ -85,7 +86,7 @@ namespace doggo.Services
             };
         }
 
-        public Backpass CookieAuthenticate(LoginDTO credential)
+        public Backpass CookieAuthenticate(LoginView credential)
         {
             var res = (from u in db.User
                        where u.Email == credential.Email
@@ -94,7 +95,7 @@ namespace doggo.Services
             if (res.Any())
             {
                 UserDTO user = res.FirstOrDefault();
-                if (user.Password == credential.Password)
+                if (BC.Verify(credential.Password, user.Password))
                 {
                     user.Password = null;
                     
@@ -134,7 +135,7 @@ namespace doggo.Services
             user.Id = credential.Id;
             user.Name = credential.Name;
             user.Email = credential.Email;
-            user.Password = credential.Password;
+            user.Password = BC.HashPassword(credential.Password);
             user.UserRole = "User";
             user.CreatedDate = DateTime.Now;
             user.UpdatedDate = DateTime.Now;
@@ -142,7 +143,7 @@ namespace doggo.Services
             db.Add(user);
             db.SaveChanges();
 
-            return CookieAuthenticate(new LoginDTO
+            return CookieAuthenticate(new LoginView
             {
                 Email = credential.Email,
                 Password = credential.Password

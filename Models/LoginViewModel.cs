@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace doggo.Models
 {
-    public class LoginDTO
+    public class LoginView
     {
         [RegularExpression("^(.+@.+[.].+|[aA]dmin)$", ErrorMessage = "อีเมลไม่ถูกต้อง")]
         [Required(ErrorMessage = "กรุณากรอกข้อมูลให้ครบถ้วน")]
