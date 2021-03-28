@@ -66,11 +66,17 @@
         </nav>
     </header>
     <div class="container">
-        <main role="main">
-            <div>
+        @if(User.Identity.IsAuthenticated){
+            <main role="main">
+                <div>
+                    @RenderBody()
+                </div>
+            </main>
+        } else {
+            <main role="main" id="unauthenticated">
                 @RenderBody()
-            </div>
-        </main>
+            </main>
+        }
     </div>
     <script src="~/js/site.js" asp-append-version="true"></script>
     <script src="https://code.iconify.design/1/1.0.6/iconify.min.js"></script>
