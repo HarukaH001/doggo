@@ -1,4 +1,86 @@
+@model IEnumerable<doggo.Models.UserDTO>
 @{
     ViewData["Title"] = "Users";
 }
-@ViewData["Title"]
+<div class="head">สมาชิก</div>
+<div class="table-wrapper">
+    <table>
+        <thead>
+            <tr>
+                <th>ลำดับ</th>
+                <th>ชื่อ</th>
+                <th>อีเมล</th>
+                <th>วันที่อัปเดตล่าสุด</th>
+                <th>การจัดการ</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach(var item in Model){
+                @if(item.Status != "Deleted"){
+                    <tr>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Id)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Name)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Email)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.UpdatedDate)
+                        </td>
+                        <td id="actions">
+                            @if(item.UserRole != "Admin"){
+                                <div class="actions-wrapper">
+                                    <a asp-controller="Account" asp-action="Toggle" asp-route-id="@item.Id" onclick="return ToggleHandler(this)" id="@item.Email;@item.Status">
+                                        @if(item.Status=="Locked"){
+                                            <span class="iconify" data-inline="false" data-icon="bx:bx-lock" title="ปลดแบน"></span>
+                                        }else{
+                                            <span class="iconify" data-inline="false" data-icon="bx:bx-lock-open" title="แบน"></span>
+                                        }
+                                    </a>
+                                    <a asp-controller="Account" asp-action="Reset" asp-route-id="@item.Id" onclick="return ResetHandler(this)" id="@item.Email;@item.Status">
+                                       <span class="iconify" data-inline="false" data-icon="bx:bx-reset" title="รีเซ็ทรหัสผ่านค่าเริ่มต้น"></span> 
+                                    </a>
+                                    <a asp-controller="Account" asp-action="Delete" asp-route-id="@item.Id" onclick="return DeleteHandler(this)" id="@item.Email;@item.Status">
+                                        <span class="iconify" data-inline="false" data-icon="bx:bx-trash" title="ลบ"></span>
+                                    </a>
+                                </div>
+                            }
+                        </td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+</div>
+
+<script>
+    function ToggleHandler(e,item){
+        const keys = e.id.split(";")
+        if(confirm("ยืนยันที่จะทำการ" + (keys[1] === "Locked" ? "ปลดแบน" : "แบน") + " " + keys[0])){
+            return true
+        } else {
+            return false
+        }
+    }
+
+    function ResetHandler(e, item){
+        const keys = e.id.split(";")
+        if(confirm("ยืนยันที่จะทำการรีเซ็ทรหัสผ่านเป็นค่าเริ่มต้น " + keys[0])){
+            return true
+        } else {
+            return false
+        }
+    }
+
+    function DeleteHandler(e, item){
+        const keys = e.id.split(";")
+        if(confirm("ยืนยันที่จะทำการลบบัญชี " + keys[0])){
+            return true
+        } else {
+            return false
+        }
+    }
+</script>

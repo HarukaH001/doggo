@@ -23,6 +23,9 @@ namespace doggo.Services
         Backpass CookieAuthenticate(LoginView credential);
         Task<Backpass> SignUpAndAuthenticate(RegisterView credential);
         Task<Backpass> ChangePassword(int Id, ChangePasswordView credential);
+        Task<Backpass> ResetPassword(int id);
+        Task<Backpass> ToggleLock(int id);
+        Task<Backpass> Delete(int id);
         IEnumerable<UserDTO> GetAll();
         UserDTO GetById(int id);
     }
@@ -211,6 +214,105 @@ namespace doggo.Services
                 {
                     Error = true,
                     Data = "Wrong Password"
+                };
+            }
+            return new Backpass
+            {
+                Error = true,
+                Data = "User Not Found"
+            };
+        }
+
+        public async Task<Backpass> ResetPassword(int id)
+        {
+            var user = GetById(id);
+            if(user != null){
+                user.UpdatedDate = DateTime.Now;
+                user.Password = BC.HashPassword(_appSettings.DefaultPassword);
+                try{
+                    db.Update(user);
+                    await db.SaveChangesAsync();
+                } catch (DbUpdateConcurrencyException){
+                    if(!db.User.Any(e=> e.Id == id)){
+                        return new Backpass
+                        {
+                            Error = true,
+                            Data = "User Not Found"
+                        };
+                    } else {
+                        throw;
+                    }
+                }
+                return new Backpass
+                {
+                    Error = false,
+                    Data = "Password Updated"
+                };
+            }
+            return new Backpass
+            {
+                Error = true,
+                Data = "User Not Found"
+            };
+        }
+
+        public async Task<Backpass> ToggleLock(int id)
+        {
+            var user = GetById(id);
+            if(user != null){
+                user.Status = user.Status == "Locked" ? "Unlocked" : "Locked";
+                user.UpdatedDate = DateTime.Now;
+                try{
+                    db.Update(user);
+                    await db.SaveChangesAsync();
+                } catch (DbUpdateConcurrencyException){
+                    if(!db.User.Any(e=> e.Id == id)){
+                        return new Backpass
+                        {
+                            Error = true,
+                            Data = "User Not Found"
+                        };
+                    } else {
+                        throw;
+                    }
+                }
+                return new Backpass
+                {
+                    Error = false,
+                    Data = "Status Updated"
+                };
+            }
+            return new Backpass
+            {
+                Error = true,
+                Data = "User Not Found"
+            };
+        }
+
+        public async Task<Backpass> Delete(int id)
+        {
+            var user = GetById(id);
+            if(user != null){
+                user.Status = "Deleted";
+                user.UpdatedDate = DateTime.Now;
+                try{
+                    db.Update(user);
+                    await db.SaveChangesAsync();
+                } catch (DbUpdateConcurrencyException){
+                    if(!db.User.Any(e=> e.Id == id)){
+                        return new Backpass
+                        {
+                            Error = true,
+                            Data = "User Not Found"
+                        };
+                    } else {
+                        throw;
+                    }
+                }
+                return new Backpass
+                {
+                    Error = false,
+                    Data = "Status Updated"
                 };
             }
             return new Backpass

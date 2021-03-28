@@ -114,7 +114,7 @@ namespace doggo.Controllers
         [Route("[action]")]
         public IActionResult Users()
         {
-            return View();
+            return View(_userService.GetAll());
         }
 
         [Route("[action]")]
@@ -142,6 +142,27 @@ namespace doggo.Controllers
                 }
             }
             return View(credential);
+        }
+
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> Toggle(int id)
+        {
+            var res = await _userService.ToggleLock(id);
+            return RedirectToAction("Users");
+        }
+
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var res = await _userService.Delete(id);
+            return RedirectToAction("Users");
+        }
+
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> Reset(int id)
+        {
+            var res = await _userService.ResetPassword(id);
+            return RedirectToAction("Users");
         }
     }
 }
