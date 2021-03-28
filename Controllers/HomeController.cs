@@ -57,6 +57,13 @@ namespace doggo.Controllers
             return View();
         }
 
+        [Authorize(Roles = "User")]
+        [Route("[action]")]
+        public IActionResult History()
+        {
+            return View();
+        }
+
         [Route("{*url}", Order = 999)]
         public IActionResult CatchAll()
         {

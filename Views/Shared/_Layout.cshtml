@@ -54,11 +54,11 @@
                         <div class="wrapper"><a asp-area="" asp-controller="Account" asp-action="Login">เข้าสู่ระบบ</a></div>
                     } else {
                         @if(User.FindFirst(ClaimTypes.Role)?.Value == "Admin"){
-                            <div class="wrapper"><a asp-area="" asp-controller="" asp-action="">จัดการสมาชิก</a></div>
+                            <div class="wrapper"><a asp-area="" asp-controller="Account" asp-action="Users">จัดการสมาชิก</a></div>
                         } else {
-                            <div class="wrapper"><a asp-area="" asp-controller="" asp-action="">ประวัติการจอง</a></div>
+                            <div class="wrapper"><a asp-area="" asp-controller="Home" asp-action="History">ประวัติการจอง</a></div>
                         }
-                        <div class="wrapper"><a asp-area="" asp-controller="" asp-action="">เปลี่ยนรหัสผ่าน</a></div>
+                        <div class="wrapper"><a asp-area="" asp-controller="Account" asp-action="ChangePassword">เปลี่ยนรหัสผ่าน</a></div>
                         <div class="wrapper"><a asp-area="" asp-controller="Account" asp-action="Logout">ออกจากระบบ</a></div>
                     }
                 </section>

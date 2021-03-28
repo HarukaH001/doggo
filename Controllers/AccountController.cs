@@ -90,7 +90,7 @@ namespace doggo.Controllers
             }
             if (ModelState.IsValid)
             {
-                var res = _userService.SignUpAndAuthenticate(credential);
+                var res = await _userService.SignUpAndAuthenticate(credential);
 
                 if (res.Error == false)
                 {
@@ -108,6 +108,40 @@ namespace doggo.Controllers
         {
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
             return RedirectToAction("Login", "Account");
+        }
+
+        [Authorize(Roles = "Admin")]
+        [Route("[action]")]
+        public IActionResult Users()
+        {
+            return View();
+        }
+
+        [Route("[action]")]
+        public IActionResult ChangePassword()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Route("[action]")]
+        public async Task<IActionResult> ChangePassword([Bind("CurrentPassword,NewPassword,ConfirmNewPassword")] ChangePasswordView credential)
+        {
+            if (ModelState.IsValid)
+            {
+                var Id = User.FindFirst("Id")?.Value;
+                if(Id != null){
+                    var res = await _userService.ChangePassword(int.Parse(Id), credential);
+                    if(res.Error == false) {
+                        ViewData["Success"] = "เปลี่ยนรหัสผ่านสำเร็จ";
+                        return View();
+                    }
+                    ViewData["Success"]=null;
+                    ModelState.AddModelError(string.Empty, res.Data == "User Not Found" ? "เปลี่ยนรหัสผ่านไม่สำเร็จ" : "รหัสผ่านปัจจุบันไม่ถูกต้อง");
+                }
+            }
+            return View(credential);
         }
     }
 }

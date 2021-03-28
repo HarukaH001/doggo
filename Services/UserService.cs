@@ -9,6 +9,8 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using BC = BCrypt.Net.BCrypt;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using doggo.Models;
 using doggo.Helpers;
 using doggo.Data;
@@ -19,7 +21,8 @@ namespace doggo.Services
     {
         Backpass Authenticate(LoginView credential);
         Backpass CookieAuthenticate(LoginView credential);
-        Backpass SignUpAndAuthenticate(RegisterView credential);
+        Task<Backpass> SignUpAndAuthenticate(RegisterView credential);
+        Task<Backpass> ChangePassword(int Id, ChangePasswordView credential);
         IEnumerable<UserDTO> GetAll();
         UserDTO GetById(int id);
     }
@@ -129,10 +132,9 @@ namespace doggo.Services
             };
         }
 
-        public Backpass SignUpAndAuthenticate(RegisterView credential)
+        public async Task<Backpass> SignUpAndAuthenticate(RegisterView credential)
         {
             UserDTO user = new UserDTO();
-            user.Id = credential.Id;
             user.Name = credential.Name;
             user.Email = credential.Email;
             user.Password = BC.HashPassword(credential.Password);
@@ -141,13 +143,54 @@ namespace doggo.Services
             user.UpdatedDate = DateTime.Now;
 
             db.Add(user);
-            db.SaveChanges();
+            await db.SaveChangesAsync();
 
             return CookieAuthenticate(new LoginView
             {
                 Email = credential.Email,
                 Password = credential.Password
             });
+        }
+
+        public async Task<Backpass> ChangePassword(int Id, ChangePasswordView credential)
+        {
+            var user = GetById(Id);
+            if(user != null){
+                if (BC.Verify(credential.CurrentPassword, user.Password))
+                {
+                    user.UpdatedDate = DateTime.Now;
+                    user.Password = BC.HashPassword(credential.NewPassword);
+                    try{
+                        db.Update(user);
+                        await db.SaveChangesAsync();
+                    } catch (DbUpdateConcurrencyException){
+                        if(!db.User.Any(e=> e.Id == Id)){
+                            return new Backpass
+                            {
+                                Error = true,
+                                Data = "User Not Found"
+                            };
+                        } else {
+                            throw;
+                        }
+                    }
+                    return new Backpass
+                    {
+                        Error = false,
+                        Data = "Password Updated"
+                    };
+                }
+                return new Backpass
+                {
+                    Error = true,
+                    Data = "Wrong Password"
+                };
+            }
+            return new Backpass
+            {
+                Error = true,
+                Data = "User Not Found"
+            };
         }
 
         public IEnumerable<UserDTO> GetAll()
