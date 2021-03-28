@@ -10,7 +10,7 @@ namespace doggo.Models
         public string Email { get; set; }
 
         [DataType(DataType.Password)]
-        [StringLength(50, ErrorMessage = "รหัสผ่าน ตั้งแต่ 8 ถึง 50 ตัวอักษร", MinimumLength = 8)]
+        [StringLength(50, ErrorMessage = "8 ถึง 50 ตัวอักษร", MinimumLength = 8)]
         [Required(ErrorMessage = "กรุณากรอกข้อมูลให้ครบถ้วน")]
         public string Password { get; set; }
     }

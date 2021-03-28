@@ -3,20 +3,42 @@
 @{
     ViewData["Title"] = "Login";
 }
-Login
-<form asp-action="Login">
-    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-    <div class="form-group">
-        <label asp-for="Email" class="control-label"></label>
-        <input asp-for="Email" class="form-control" />
-        <span asp-validation-for="Email" class="text-danger"></span>
+<div class="content">
+    <div class="graphic">
+        <div class="bar" id="sp">
+            <div class="system">ระบบการจองใช้งานอุปกรณ์ในห้องปฏิบัติการ</div>
+        </div>
+        <div class="bar flip" id="sp">
+            <div class="system blur">ระบบการจองใช้งานอุปกรณ์ในห้องปฏิบัติการ</div></div>
+        <div class="bar" id="sp">
+            <div class="subject">รหัสวิชา 01076025 รายวิชา Software Studio</div>
+        </div>
+        <div class="bar flip" id="sp">
+            <div class="subject blur">รหัสวิชา 01076025 รายวิชา Software Studio</div></div>
+        <div class="texts">
+            <div class="logo">DogGo</div>
+            <div class="year">63/2021 CE KMITL</div>
+        </div>
     </div>
-    <div class="form-group">
-        <label asp-for="Password" class="control-label"></label>
-        <input asp-for="Password" class="form-control" />
-        <span asp-validation-for="Password" class="text-danger"></span>
+    <div class="right">
+        <div class="head">เข้าสู่ระบบ</div>
+        <form asp-action="Login">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label>อีเมล</label>
+                <input asp-for="Email" class="form-control" />
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label>รหัสผ่าน</label>
+                <input asp-for="Password" class="form-control" />
+                <span asp-validation-for="Password" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="เข้าสู่ระบบ" class="btn btn-primary">
+            </div>
+            <span>ลืมรหัสผ่าน แจ้งผู้ดูแล 091 7240 559</span>
+        </form>
+        <div></div>
     </div>
-    <div class="form-group">
-        <input type="submit" value="Login" class="btn btn-primary" />
-    </div>
-</form>
+</div>

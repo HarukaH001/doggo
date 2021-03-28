@@ -4,30 +4,53 @@
     ViewData["Title"] = "Register";
 }
 
-Register
-<form asp-action="Register">
-    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-    <div class="form-group">
-        <label asp-for="Name" class="control-label"></label>
-        <input asp-for="Name" class="form-control" />
-        <span asp-validation-for="Name" class="text-danger"></span>
+<div class="content">
+    <div class="graphic">
+        <div class="bar" id="sp">
+            <div class="system">ระบบการจองใช้งานอุปกรณ์ในห้องปฏิบัติการ</div>
+        </div>
+        <div class="bar flip" id="sp">
+            <div class="system blur">ระบบการจองใช้งานอุปกรณ์ในห้องปฏิบัติการ</div></div>
+        <div class="bar" id="sp">
+            <div class="subject">รหัสวิชา 01076025 รายวิชา Software Studio</div>
+        </div>
+        <div class="bar flip" id="sp">
+            <div class="subject blur">รหัสวิชา 01076025 รายวิชา Software Studio</div></div>
+        <div class="texts">
+            <div class="logo">DogGo</div>
+            <div class="year">63/2021 CE KMITL</div>
+        </div>
     </div>
-    <div class="form-group">
-        <label asp-for="Email" class="control-label"></label>
-        <input asp-for="Email" class="form-control" />
-        <span asp-validation-for="Email" class="text-danger"></span>
+    <div class="right">
+        <div class="head">สมัครสมาชิก</div>
+        <form asp-action="Register" novalidate>
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label>อีเมล</label>
+                <input asp-for="Email" class="form-control" />
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label>ชื่อ - สกุล</label>
+                <input asp-for="Name" class="form-control" />
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+            <div class="alternative-form-group">
+                <div class="form-group">
+                    <label>รหัสผ่าน</label>
+                    <input asp-for="Password" class="form-control" />
+                    <span asp-validation-for="Password" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label>ยืนยันรหัสผ่าน</label>
+                    <input asp-for="ConfirmPassword" class="form-control" />
+                    <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="สมัครสมาชิก" class="btn btn-primary" />
+            </div>
+        </form>
+        <div></div>
     </div>
-    <div class="form-group">
-        <label asp-for="Password" class="control-label"></label>
-        <input asp-for="Password" class="form-control" />
-        <span asp-validation-for="Password" class="text-danger"></span>
-    </div>
-    <div class="form-group">
-        <label asp-for="ConfirmPassword" class="control-label"></label>
-        <input asp-for="ConfirmPassword" class="form-control" />
-        <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
-    </div>
-    <div class="form-group">
-        <input type="submit" value="Register" class="btn btn-primary" />
-    </div>
-</form>
+</div>

@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="~/css/site.css" />
     <link rel="stylesheet" href="~/css/@(ViewContext.RouteData.Values["controller"].ToString())@(ViewContext.RouteData.Values["action"].ToString()).css" />
     <link rel="preconnect" href="https://fonts.gstatic.com">
-    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 
 <body>
@@ -73,9 +73,21 @@
                 </div>
             </main>
         } else {
+            <div class="graphic">
+                <div class="bar"></div>
+                <div class="bar"></div>
+                <div class="bar"></div>
+                <div class="bar"></div>
+            </div>
             <main role="main" id="unauthenticated">
                 @RenderBody()
             </main>
+            <div class="graphic">
+                <div class="bar"></div>
+                <div class="bar"></div>
+                <div class="bar"></div>
+                <div class="bar"></div>
+            </div>
         }
     </div>
     <script src="~/js/site.js" asp-append-version="true"></script>
