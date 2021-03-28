@@ -1,71 +1,102 @@
-﻿/* Please see documentation at https://docs.microsoft.com/aspnet/core/client-side/bundling-and-minification
-for details on configuring this project to bundle and minify static web assets. */
-
-a.navbar-brand {
-  white-space: normal;
-  text-align: center;
-  word-break: break-all;
+﻿
+body{
+    margin: 0;
+    padding: 0;
+    font-size: 14px;
+    font-family: 'Prompt', sans-serif;
+    color: #404040;
+    overflow: hidden;
+}
+nav{
+    width: 100%;
+    height: 60px;
+    background: #FFFFFF;
+    box-shadow: 0px 0.5px 5px rgba(0, 0, 0, 0.25);
 }
 
-/* Provide sufficient contrast against white background */
-a {
-  color: #0366d6;
+nav>.container{
+    margin: auto;
+    width: 1280px;
+    height: 100%;
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    justify-content: space-between;
+}
+nav .wrapper{
+    height: 100%;
+    width: 140px; 
+    display: flex;
+    justify-content: center;
 }
 
-.btn-primary {
-  color: #fff;
-  background-color: #1b6ec2;
-  border-color: #1861ac;
+nav .wrapper a{
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    text-decoration: none;
+    color: #404040;
+    transition: all 0.1s;
 }
 
-.nav-pills .nav-link.active, .nav-pills .show > .nav-link {
-  color: #fff;
-  background-color: #1b6ec2;
-  border-color: #1861ac;
+nav .wrapper a:hover{
+    font-size: 15px;
 }
 
-/* Sticky footer styles
--------------------------------------------------- */
-html {
-  font-size: 14px;
-}
-@media (min-width: 768px) {
-  html {
-    font-size: 16px;
-  }
+nav section{
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
 }
 
-.border-top {
-  border-top: 1px solid #e5e5e5;
-}
-.border-bottom {
-  border-bottom: 1px solid #e5e5e5;
-}
-
-.box-shadow {
-  box-shadow: 0 .25rem .75rem rgba(0, 0, 0, .05);
+.right-nav .wrapper:nth-last-child(1) a{
+    margin: auto;
+    width: 110px;
+    height: 28px;
+    background: #414141;
+    border-radius: 107px;
+    color: #FFFFFF;
 }
 
-button.accept-policy {
-  font-size: 1rem;
-  line-height: inherit;
+.center-nav .wrapper{
+    font-size: 18px;
+    font-weight: 500;
 }
 
-/* Sticky footer styles
--------------------------------------------------- */
-html {
-  position: relative;
-  min-height: 100%;
+.left-nav{
+    justify-content: flex-start;
+    width: 420px;
+    z-index: 2;
 }
 
-body {
-  /* Margin bottom by footer height */
-  margin-bottom: 60px;
+.right-nav{
+    justify-content: flex-end;
+    width: 420px;
 }
-.footer {
-  position: absolute;
-  bottom: 0;
-  width: 100%;
-  white-space: nowrap;
-  line-height: 60px; /* Vertically center the text there */
+
+.fixed-left-nav{
+    position: fixed;
+    z-index: 1;
+    width: 420px;
+    display: flex;
+    justify-content: space-evenly;
+    font-size: 24px;
+}
+
+.hide{
+    opacity: 0;
+}
+
+main{
+    margin: auto;
+    width: 884px;
+    height: calc(100vh - 90px);
+    padding-top: 15px;
+    padding-bottom: 15px;
+}
+
+main>div{
+    width: 100%;
+    height: 100%;
+    background-color: aliceblue;
 }

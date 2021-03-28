@@ -32,5 +32,35 @@ namespace doggo.Controllers
         {
             return View();
         }
+
+        [Authorize(Roles = "Admin")]
+        [Route("[controller]/[action]/{id}")]
+        public IActionResult Info(int id)
+        {
+            ViewData["Id"] = id;
+            return View();
+        }
+
+        [Authorize(Roles = "User")]
+        [Route("[controller]/[action]/{id}")]
+        public IActionResult Reserve(int id)
+        {
+            ViewData["Id"] = id;
+            return View();
+        }
+
+        [Authorize(Roles = "Admin")]
+        [Route("[controller]/Info/[action]/{id}")]
+        public IActionResult TimeTable(int id)
+        {
+            ViewData["Id"] = id;
+            return View();
+        }
+
+        [Route("{*url}", Order = 999)]
+        public IActionResult CatchAll()
+        {
+            return RedirectToAction(nameof(Index));
+        }
     }
 }

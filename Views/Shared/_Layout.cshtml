@@ -5,47 +5,75 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - doggo</title>
+    <title>@ViewData["Title"] - Doggo</title>
     <link rel="stylesheet" href="~/css/site.css" />
+    <link rel="stylesheet" href="~/css/@(ViewContext.RouteData.Values["controller"].ToString())@(ViewContext.RouteData.Values["action"].ToString()).css" />
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 
 <body>
     <header>
-        <nav class="border-bottom box-shadow">
+        <nav>
             <div class="container">
-                <div>
-                    @(User.FindFirst(ClaimTypes.Name)?.Value)
-                    <ul id="controller">
-                        @if(!User.Identity.IsAuthenticated){
-                            <li>
-                                <a asp-area="" asp-controller="Account"
-                                    asp-action="Login">Login</a>
-                            </li>
-                            <li>
-                                <a asp-area="" asp-controller="Account"
-                                    asp-action="Register">Register</a>
-                            </li>
-                        } else {
-                            <li>
-                                <a asp-area="" asp-controller="Home"
-                                    asp-action="Index">Home</a>
-                            </li>
-                            <li>
-                                <a asp-area="" asp-controller="Account"
-                                    asp-action="Logout">Logout</a>
-                            </li>
-                        }
-                    </ul>
+                <div class="fixed-left-nav">
+                    @if(User.Identity.IsAuthenticated){
+                        var hide1 = Context.Request.Path.ToString().ToLower().Contains("home/") ? "" : "hide";
+                        var hide2 = Context.Request.Path.ToString().ToLower().Contains("/timetable") ? "" : "hide";
+                        <span class="iconify @hide1" data-inline="false" data-icon="fluent:caret-right-24-filled"></span>
+                        <span class="iconify @hide2" data-inline="false" data-icon="fluent:caret-right-24-filled"></span>
+                    }
                 </div>
+                <section class="left-nav">
+                    @if(User.Identity.IsAuthenticated){
+                        <div class="wrapper"><a asp-area="" asp-controller="Home" asp-action="Index">รายการอุปกรณ์</a></div>
+                        @if(User.FindFirst(ClaimTypes.Role)?.Value == "Admin"){
+                            <div class="wrapper">
+                                @if(Context.Request.Path.ToString().ToLower().Contains("home/")){
+                                    <a asp-area="" asp-controller="Home" asp-action="Info" asp-route-Id="@ViewData["Id"]">ข้อมูลอุปกรณ์</a>
+                                }
+                            </div>
+                        } else {
+                            <div class="wrapper">
+                                @if(Context.Request.Path.ToString().ToLower().Contains("home/")){
+                                    <a asp-area="" asp-controller="Home" asp-action="Reserve" asp-route-Id="@ViewData["Id"]">จองอุปกรณ์</a>
+                                }
+                            </div>
+                        }
+                        @if(Context.Request.Path.ToString().ToLower().Contains("/timetable")){
+                            <div class="wrapper"><a asp-area="" asp-controller="Home" asp-action="TimeTable" asp-route-Id="@ViewData["Id"]">ตารางเวลา</a></div>
+                        }
+                    }
+                </section>
+                <section class="center-nav">
+                    <div class="wrapper">@(User.FindFirst(ClaimTypes.Name)?.Value)</div>
+                </section>
+                <section class="right-nav">
+                    @if(!User.Identity.IsAuthenticated){
+                        <div class="wrapper"><a asp-area="" asp-controller="Account" asp-action="Register">สมัครสมาชิก</a></div>
+                        <div class="wrapper"><a asp-area="" asp-controller="Account" asp-action="Login">เข้าสู่ระบบ</a></div>
+                    } else {
+                        @if(User.FindFirst(ClaimTypes.Role)?.Value == "Admin"){
+                            <div class="wrapper"><a asp-area="" asp-controller="" asp-action="">จัดการสมาชิก</a></div>
+                        } else {
+                            <div class="wrapper"><a asp-area="" asp-controller="" asp-action="">ประวัติการจอง</a></div>
+                        }
+                        <div class="wrapper"><a asp-area="" asp-controller="" asp-action="">เปลี่ยนรหัสผ่าน</a></div>
+                        <div class="wrapper"><a asp-area="" asp-controller="Account" asp-action="Logout">ออกจากระบบ</a></div>
+                    }
+                </section>
             </div>
         </nav>
     </header>
     <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
+        <main role="main">
+            <div>
+                @RenderBody()
+            </div>
         </main>
     </div>
     <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="https://code.iconify.design/1/1.0.6/iconify.min.js"></script>
     @RenderSection("Scripts", required: false)
 </body>
 </html>
