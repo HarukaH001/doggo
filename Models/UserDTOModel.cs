@@ -13,6 +13,7 @@ namespace doggo.Models
 
         public string Password { get; set; }
         public string UserRole { get; set; }
+        public string Status { get; set; }
 
         public DateTime CreatedDate { get; set; }
 

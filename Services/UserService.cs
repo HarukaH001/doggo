@@ -47,6 +47,19 @@ namespace doggo.Services
             if (res.Any())
             {
                 UserDTO user = res.FirstOrDefault();
+                if(user.Status == "Deleted"){
+                    return new Backpass
+                    {
+                        Error = true,
+                        Data = "User Deleted"
+                    };
+                } else if(user.Status == "Locked") {
+                    return new Backpass
+                    {
+                        Error = true,
+                        Data = "User Locked"
+                    };
+                }
                 if (BC.Verify(credential.Password, user.Password))
                 {
                     user.Password = null;
@@ -98,6 +111,19 @@ namespace doggo.Services
             if (res.Any())
             {
                 UserDTO user = res.FirstOrDefault();
+                if(user.Status == "Deleted"){
+                    return new Backpass
+                    {
+                        Error = true,
+                        Data = "User Deleted"
+                    };
+                } else if(user.Status == "Locked") {
+                    return new Backpass
+                    {
+                        Error = true,
+                        Data = "User Locked"
+                    };
+                }
                 if (BC.Verify(credential.Password, user.Password))
                 {
                     user.Password = null;
@@ -139,6 +165,7 @@ namespace doggo.Services
             user.Email = credential.Email;
             user.Password = BC.HashPassword(credential.Password);
             user.UserRole = "User";
+            user.Status = "Unlocked";
             user.CreatedDate = DateTime.Now;
             user.UpdatedDate = DateTime.Now;
 

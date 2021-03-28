@@ -64,7 +64,7 @@ namespace doggo.Controllers
                     await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, claims);
                     return RedirectToAction("Index", "Home");
                 }
-                ModelState.AddModelError(string.Empty, "เข้าสู่ระบบไม่สำเร็จ");
+                ModelState.AddModelError(string.Empty, res.Data == "User Locked" ? "ถูกระงับการใช้งาน": "เข้าสู่ระบบไม่สำเร็จ");
             }
             return View(credential);
         }
