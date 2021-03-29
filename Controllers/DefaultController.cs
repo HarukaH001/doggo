@@ -19,10 +19,12 @@ namespace doggo.Controllers{
     public class DefaultController : Controller
     {
         private IUserService _userService;
+        private IItemService _itemService;
 
-        public DefaultController(IUserService userService)
+        public DefaultController(IUserService userService, IItemService itemService)
         {
             _userService = userService;
+            _itemService = itemService;
         }
 
         [HttpPost]
@@ -35,9 +37,17 @@ namespace doggo.Controllers{
 
         [Authorize(Roles = "Admin")]
         [HttpGet]
-        public IActionResult users()
+        public IActionResult Users()
         {
             var users =  _userService.GetAll();
+            return Ok(users);
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpGet]
+        public IActionResult StockSummary()
+        {
+            var users =  _itemService.StockSummary();
             return Ok(users);
         }
     }

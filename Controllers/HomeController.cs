@@ -20,17 +20,20 @@ namespace doggo.Controllers
     public class HomeController : Controller
     {
         private readonly IUserService _userService;
+        private readonly IItemService _itemService;
         private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public HomeController(IUserService userService, IHttpContextAccessor httpContextAccessor)
+        public HomeController(IUserService userService, IItemService itemService, IHttpContextAccessor httpContextAccessor)
         {
             _userService = userService;
+            _itemService = itemService;
             _httpContextAccessor = httpContextAccessor;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            return View();
+            var res = await _itemService.GetItems();
+            return View(res);
         }
 
         [Authorize(Roles = "Admin")]

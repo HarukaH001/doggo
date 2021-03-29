@@ -1,4 +1,26 @@
+@model IEnumerable<doggo.Models.ItemDTO>
+@using System.Security.Claims
 @{
     ViewData["Title"] = "Home";
 }
-@ViewData["Title"]
+<div class="head">รายการอุปกรณ์</div>
+<div class="content-wrapper">
+    <div class="content-flex">
+        @foreach(var item in Model)
+        {
+            <a class="box" asp-controller="Home" asp-action=@(User.FindFirst(ClaimTypes.Role)?.Value == "Admin" ? "Info" : "Reserve") asp-route-id="@item.Id">
+                <div class="img-wrapper">
+                    <img src="~/assets/@(item.Id).png" alt=""/>
+                </div>
+                <div class="bottom-box">
+                    <span>@item.Name</span>
+                    <span>@item.Location</span>
+                </div>
+            </a>
+        }
+        @for (var item = 0; item < 3 - Model.Count() % 3; item++)
+        {
+            <div class="filler"></div>
+        }
+    </div>
+</div>

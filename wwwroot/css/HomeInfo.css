@@ -1,0 +1,10 @@
+.head{
+    font-size: 18px;
+    font-weight: 400;
+    line-height: 30px;
+}
+
+.content-wrapper{
+    position: relative;
+    height: calc(100% - 30px);
+}
