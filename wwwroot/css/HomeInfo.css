@@ -283,19 +283,22 @@ table thead th:first-child {
 #Val::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
     color: #FFFFFF;
     opacity: 0.5;
-    font-weight: 400;
+    font-weight: 300;
+    font-size: 12px;
 }
   
 #Val:-ms-input-placeholder { /* Internet Explorer 10-11 */
     color: #FFFFFF;
     opacity: 0.5;
-    font-weight: 400;
+    font-weight: 300;
+    font-size: 12px;
 }
   
 #Val::-ms-input-placeholder { /* Microsoft Edge */
     color: #FFFFFF;
     opacity: 0.5;
-    font-weight: 400;
+    font-weight: 300;
+    font-size: 12px;
 }
 
 form{
