@@ -41,8 +41,28 @@ namespace doggo.Controllers
         public IActionResult Info(int id)
         {
             ViewData["Id"] = id;
-            return View();
+
+            var res = _itemService.FullItemInfo(id);
+
+            return View(res);
         }
+
+        [HttpPost]
+        [Authorize(Roles = "Admin")]
+        [Route("[controller]/[action]/{id}")]
+        public async Task<IActionResult> Info(AddDeleteItemDTO value)
+        {
+            var id = value.Id;
+            var res = new ItemInfoView();
+            if(value.Type == "เพิ่มรายการ"){
+                res = await _itemService.AddById(id, value.Val);
+            } else {
+                res = await _itemService.DeleteById(id, value.Val);
+            }
+
+            return RedirectToAction("Info", new { id = id });
+        }
+
 
         [Authorize(Roles = "User")]
         [Route("[controller]/[action]/{id}")]
@@ -67,10 +87,10 @@ namespace doggo.Controllers
             return View();
         }
 
-        [Route("{*url}", Order = 999)]
-        public IActionResult CatchAll()
-        {
-            return RedirectToAction(nameof(Index));
-        }
+        // [Route("{*url}", Order = 999)]
+        // public IActionResult CatchAll()
+        // {
+        //     return RedirectToAction(nameof(Index));
+        // }
     }
 }

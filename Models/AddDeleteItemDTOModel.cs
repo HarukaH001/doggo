@@ -3,12 +3,10 @@ using System.ComponentModel.DataAnnotations;
 
 namespace doggo.Models
 {
-    public class ItemStockDTO
+    public class AddDeleteItemDTO
     {
         public int Id { get; set; }
-        public int ItemId { get; set; }
         public string Type { get; set; }
-        public int Amount { get; set; }
-        public DateTime CreatedDate { get; set; }
+        public int Val { get; set; }
     }
 }

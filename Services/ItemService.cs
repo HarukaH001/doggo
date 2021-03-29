@@ -15,7 +15,12 @@ namespace doggo.Services
     public interface IItemService
     {
         IEnumerable<StockSummaryDTO> StockSummary();
+        StockSummaryDTO StockSummaryById(int id);
+        IEnumerable<StockRecordDTO> GetStockRecordById(int id);
+        ItemInfoView FullItemInfo(int id);
         Task<IEnumerable<ItemDTO>> GetItems();
+        Task<ItemInfoView> AddById(int id, int amount);
+        Task<ItemInfoView> DeleteById(int id, int amount);
     }
 
     public class ItemService : IItemService
@@ -53,8 +58,70 @@ namespace doggo.Services
             return res;
         }
 
+        
+        public StockSummaryDTO StockSummaryById(int id){
+            return StockSummary().FirstOrDefault(m=> m.Id == id);
+        }
+        public IEnumerable<StockRecordDTO> GetStockRecordById(int id){
+            var res = (
+                from i in db.ItemStock
+                where i.ItemId==id
+                orderby i.Id descending
+                select new StockRecordDTO {
+                    Id=i.Id,
+                    Type=i.Type,
+                    Amount=i.Amount,
+                    Snapshot=(
+                        from s in db.ItemStock
+                        where s.ItemId==id & s.Id<=i.Id
+                        group s by s.ItemId into ss
+                        select new{
+                            Snapshot=ss.Sum(d => (Int32)(d.Type=="Increment"?d.Amount:(d.Amount * -1)))
+                        }).First().Snapshot,
+                    CreatedDate=i.CreatedDate
+                }
+            );
+
+            return res;
+        }
+
+        public ItemInfoView FullItemInfo(int id){
+            var StockSummary = StockSummaryById(id);
+            var StockRecord = GetStockRecordById(id);
+
+            return new ItemInfoView {
+                StockSummary=StockSummary,
+                StockRecord=StockRecord
+            };
+        }
         public async Task<IEnumerable<ItemDTO>> GetItems(){
             return await db.Item.ToListAsync();
+        }
+        public async Task<ItemInfoView> AddById(int id, int amount){
+            ItemStockDTO isd = new ItemStockDTO {
+                ItemId=id,
+                Type="Increment",
+                Amount=amount,
+                CreatedDate=DateTime.Now
+            };
+
+            db.Add(isd);
+            await db.SaveChangesAsync();
+
+            return FullItemInfo(id);
+        }
+        public async Task<ItemInfoView> DeleteById(int id, int amount){
+            ItemStockDTO isd = new ItemStockDTO {
+                ItemId=id,
+                Type="Decrement",
+                Amount=amount,
+                CreatedDate=DateTime.Now
+            };
+
+            db.Add(isd);
+            await db.SaveChangesAsync();
+
+            return FullItemInfo(id);
         }
     }
 }

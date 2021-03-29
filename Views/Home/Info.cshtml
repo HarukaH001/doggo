@@ -1,5 +1,131 @@
+@model doggo.Models.ItemInfoView
 @{
-    ViewData["Title"] = "Home/Info";
+    ViewData["Title"] = "Info";
+    IEnumerable<StockRecordDTO> records = Model.StockRecord;
 }
 
 <div class="head">ข้อมูล</div>
+<div class="info">
+    <div class="img-wrapper">
+        <img src="~/assets/@(Model.StockSummary.Id).png" alt=""/>
+    </div>
+    <div class="info-content">
+        <div class="left">
+            <div class="left-child">
+                @Model.StockSummary.Name
+            </div>
+            <div class="left-child">
+                @Model.StockSummary.Location
+            </div>
+            <div class="left-filler">
+                Something
+            </div>
+        </div>
+        <div class="right">
+            <div class="right-child">
+                <span>จำนวนปัจจุบัน</span> <span>@Model.StockSummary.Current</span>
+            </div>
+            <div class="right-child">
+                <span>เพิ่มทั้งหมด</span> <span>@Model.StockSummary.Increment</span>
+            </div>
+            <div class="right-child">
+                <span>ลบทั้งหมด</span> <span>@Model.StockSummary.Decrement</span>
+            </div>
+        </div>
+    </div>
+    <div class="right-area">
+        <a asp-area="" asp-controller="Home" asp-action="TimeTable" asp-route-id="@Model.StockSummary.Id">รายการจอง</a>
+    </div>
+</div>
+
+<div class="head">รายการ เพิ่ม-ลด อุปกรณ์</div>
+<div class="list">
+    <div class="list-action">
+        <form asp-action="Info">
+            <input type="submit" name="Type" value="เพิ่มรายการ" class="add-btn" onclick="return AddHandler(this)" id="@Model.StockSummary.Current;@Model.StockSummary.Name">
+            <input type="number" id="Val" name="Val" placeholder="ระบุจำนวน">
+            <input type="hidden" name="Id" value="@(Model.StockSummary.Id)">
+            <input type="submit" name="Type" value="ลบรายการ" class="remove-btn" onclick="return RemoveHandler(this)" id="@Model.StockSummary.Current;@Model.StockSummary.Name">
+        </form>
+    </div>
+    <div class="table-wrapper">
+        <table>
+            <thead>
+                <tr>
+                    <th>รหัส</th>
+                    <th>ประเภท</th>
+                    <th>จำนวน</th>
+                    <th>ยอดรวม</th>
+                    <th>วันที่ทำรายการ</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach(var item in records){
+                    <tr>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Id)
+                        </td>
+                        <td>
+                           @(item.Type=="Increment"?"เพิ่ม":"ลบ")
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Amount)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Snapshot)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.CreatedDate)
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    function AddHandler(e,item){
+        const keys = e.id.split(";")
+        const current = keys[0]
+        const name = keys[1]
+        const value = parseInt(document.getElementById("Val").value)
+        if(!value){
+            alert("กรุณากรอกจำนวนที่ต้องการ")
+            return false
+        }
+        if(value <= 0){
+            alert("กรุณากรอกจำนวนมากกว่าศูนย์")
+            return false
+        }
+        if(confirm("ยืนยันที่จะทำการเพิ่มรายการ " + name + " จำนวน " + value + " หน่วย")){
+            return true
+        } else {
+            return false
+        }
+    }
+
+    function RemoveHandler(e,item){
+        const keys = e.id.split(";")
+        const current = keys[0]
+        const name = keys[1]
+        const value = parseInt(document.getElementById("Val").value)
+        if(!value){
+            alert("กรุณากรอกจำนวนที่ต้องการ")
+            return false
+        }
+        if(value <= 0){
+            alert("กรุณากรอกจำนวนมากกว่าศูนย์")
+            return false
+        }
+        if(current - value < 0) {
+            alert("จำนวนที่ต้องการลบมากกว่าจำนวนอุปกรณ์ปัจจุบัน กรุณาลองใหม่อีกครั้ง")
+            return false;
+        }
+        if(confirm("ยืนยันที่จะทำการลบรายการ " + name + " จำนวน " + value + " หน่วย")){
+            return true
+        } else {
+            return false
+        }
+    }
+</script>
