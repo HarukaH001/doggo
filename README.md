@@ -1,5 +1,6 @@
-### Tool Rent System For Laboratory
-## Software Studio, Semester 2 Academic Year 2020, Computer Engineering, KMIL
+## Tool Rent System For Laboratory
+### Software Studio, 
+### Semester 2 Academic Year 2020, CE, KMIL
 
 ### Todo Backlog for Done Task
 
