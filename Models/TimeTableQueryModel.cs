@@ -4,10 +4,11 @@ using System.Collections.Generic;
 
 namespace doggo.Models
 {
-    public class TimeTable
+    public class TimeTableQuery
     {
+        public int Id { get; set; }
         public int UserId { get; set; }
         public string Name { get; set;}
-        public List<int> Timeslot { get; set; }
+        public string Timeslot { get; set; }
     }
 }

@@ -14,5 +14,6 @@ namespace doggo.Data
         public DbSet<ItemDTO> Item { get; set; }
         public DbSet<ItemStockDTO> ItemStock { get; set; }
         public DbSet<ReservationRecordDTO> ReservationRecord { get; set; }
+        public DbSet<TimeTableQuery> TimeTable { get; set; }
     }
 }

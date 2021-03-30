@@ -53,11 +53,10 @@ namespace doggo.Controllers
         public async Task<IActionResult> Info(AddDeleteItemDTO value)
         {
             var id = value.Id;
-            var res = new ItemInfoView();
             if(value.Type == "เพิ่มรายการ"){
-                res = await _itemService.AddById(id, value.Val);
+                await _itemService.AddById(id, value.Val);
             } else {
-                res = await _itemService.DeleteById(id, value.Val);
+                await _itemService.DeleteById(id, value.Val);
             }
 
             return RedirectToAction("Info", new { id = id });
@@ -74,10 +73,11 @@ namespace doggo.Controllers
 
         [Authorize(Roles = "Admin")]
         [Route("[controller]/Info/[action]/{id}")]
-        public IActionResult TimeTable(int id)
+        public async Task<IActionResult> TimeTable(int id)
         {
             ViewData["Id"] = id;
-            return View();
+            var res = await _itemService.GetReservationByItemId(id);
+            return View(res);
         }
 
         [Authorize(Roles = "User")]
@@ -92,6 +92,20 @@ namespace doggo.Controllers
         {
             var res = await _itemService.DeleteReservationById(id);
             return RedirectToAction("History");
+        }
+
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> BatchDeleteReservation(int itemId, int userId, DateTime reserveDate, string slots)
+        {
+            var sls = slots.Split(',').Select(Int32.Parse).ToList();
+            Console.WriteLine(itemId);
+            Console.WriteLine(userId);
+            Console.WriteLine(reserveDate.ToString());
+            Console.WriteLine(slots);
+
+            var res = await _itemService.BatchDeleteReservation(itemId, userId, reserveDate, sls);
+
+            return RedirectToAction("TimeTable", new { id = itemId });
         }
 
         [Route("{*url:regex(^(?!api).*$)}", Order = 999)]

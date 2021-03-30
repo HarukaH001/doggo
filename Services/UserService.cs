@@ -163,6 +163,22 @@ namespace doggo.Services
 
         public async Task<Backpass> SignUpAndAuthenticate(RegisterView credential)
         {
+            var res = db.User.Any(d => d.Email==credential.Email);
+            if(res) {
+                return new Backpass
+                {
+                    Error = true,
+                    Data = "Duplicate Email"
+                };
+            }
+            res = db.User.Any(d => d.Name==credential.Name);
+            if(res) {
+                return new Backpass
+                {
+                    Error = true,
+                    Data = "Duplicate Name"
+                };
+            }
             UserDTO user = new UserDTO();
             user.Name = credential.Name;
             user.Email = credential.Email;
@@ -263,6 +279,9 @@ namespace doggo.Services
                 user.Status = user.Status == "Locked" ? "Unlocked" : "Locked";
                 user.UpdatedDate = DateTime.Now;
                 try{
+                    if(user.Status == "Locked"){
+                        db.ReservationRecord.Where(x => x.UserId == id).ToList().ForEach(e => db.ReservationRecord.Remove(e));
+                    }
                     db.Update(user);
                     await db.SaveChangesAsync();
                 } catch (DbUpdateConcurrencyException){

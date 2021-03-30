@@ -59,7 +59,7 @@
 <script>
     function ToggleHandler(e,item){
         const keys = e.id.split(";")
-        if(confirm("ยืนยันที่จะทำการ" + (keys[1] === "Locked" ? "ปลดแบน" : "แบน") + " " + keys[0])){
+        if(confirm("ยืนยันที่จะทำการ" + (keys[1] === "Locked" ? "ปลดแบน" : "ลบการจองทั้งหมดและแบน") + " " + keys[0])){
             return true
         } else {
             return false

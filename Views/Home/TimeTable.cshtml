@@ -1,5 +1,137 @@
+@model doggo.Models.TimeTableView
 @{
     ViewData["Title"] = "TimeTable";
+    IEnumerable<TimeTable> table = Model.Table;
+    var tableIndex = table.Count();
 }
+<div class="head">ตารางเวลา @Model.ItemName</div>
+<div class="table-wrapper">
+    <table>
+        <thead>
+            <tr>
+                <th>ลำดับ</th>
+                <th>ชื่อ</th>
+                <th>
+                    <span>เวลาจอง</span><br>
+                    <span id="w">ช่องละ 1 ช.ม. ตั้งแต่ 09.00 น. ถึง 19.00 น.</span>
+                </th>
+                <th>การจัดการ</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach(var item in table){
+                <tr>
+                    <td>
+                        @tableIndex
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Name)
+                    </td>
+                    <td>
+                        @for (int i = 1; i <= 10; i++)
+                        {
+                            if(item.Timeslot.Contains(i)){
+                                <div class="dark-box" id="slot;@(tableIndex);@(i)" onclick="SelectHandler(this)"></div> 
+                            } else {
+                                <div class="white-box" id="slot;@(tableIndex);@(i)"></div>
+                            }
+                        }
+                    </td>
+                    <td id="actions">
+                        <div class="actions-wrapper">
+                            <a asp-controller="Account" asp-action="Toggle" asp-route-id="@item.UserId" onclick="return BanHandler(this)" id="@item.UserId;@item.Name">
+                                    <span class="iconify" data-inline="false" data-icon="bx:bx-user-x" title="แบน"></span>
+                            </a>
+                            <a asp-controller="Home" asp-action="BatchDeleteReservation" asp-route-itemId="@Model.ItemId" asp-route-userId="@item.UserId" asp-route-reserveDate="@Model.ReserveDate" asp-route-slots="" onclick="return DeleteHandler(this)" id="@Model.ItemName;@item.Name;@tableIndex">
+                                <span class="iconify" data-inline="false" data-icon="bx:bx-trash" title="ลบ"></span>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                tableIndex--;
+            }
+        </tbody>
+    </table>
+</div>
 
-@ViewData["Title"]
+<script>
+    let selection = [];
+    let lastIndex = -1;
+    function SelectHandler(e){
+        const keys = e.id.split(";")
+        const index = keys[1]
+        const slot = parseInt(keys[2])
+        if(lastIndex !== index){
+            selection = [slot]
+            if(lastIndex != -1){
+                for(let i = 1; i<=10; i++){
+                    let dom = document.getElementById("slot;"+lastIndex+";"+i)
+                    dom.innerHTML = ''
+                }
+            }
+            e.innerHTML = `<span class="iconify" data-inline="false" data-icon="bx:bx-check" style="font-size: 24px;"></span>`
+            lastIndex = index
+        } else {
+            if(!selection.includes(slot)){
+                selection.push(slot)
+                selection.sort()
+
+                e.innerHTML = `<span class="iconify" data-inline="false" data-icon="bx:bx-check" style="font-size: 24px;"></span>`
+            } else {
+                const index = selection.indexOf(slot);
+                if (index > -1) {
+                    selection.splice(index, 1);
+                }
+
+                e.innerHTML = ""
+            }
+        }
+    }
+
+    function BanHandler(e){
+        const keys = e.id.split(";")
+        if(confirm("ยืนยันที่จะทำการยกเลิกการจองทั้งหมดและแบนผู้ใช้ " + keys[1])){
+            return true
+        } else {
+            return false
+        }
+    }
+
+    function DeleteHandler(e){
+        const keys = e.id.split(";")
+        const index = keys[2]
+        if(selection.length === 0 || index !== lastIndex){
+            alert("กรุณาเลือกเวลาจองที่ต้องการลบ (สามารถเลือกได้หลายเวลาสำหรับ 1 ผู้ใช้)")
+            if(lastIndex != -1){
+                for(let i = 1; i<=10; i++){
+                    let dom = document.getElementById("slot;"+lastIndex+";"+i)
+                    dom.innerHTML = ''
+                }
+                lastIndex = -1
+            }
+            return false
+        }
+
+        let timeString = ""
+
+        selection.forEach(ele => {
+            timeString += "\n    - " + (ele + 8) + ".00-" + (ele + 9) + ".00"
+        })
+
+        if(confirm("ยืนยันที่จะทำการยกเลิกการจอง " + keys[0] + "\nผู้ใช้ " + keys[1] + "\nเวลา"+timeString)){
+
+            e.setAttribute("href", e.getAttribute("href") + "&slots=" + selection.toString())
+
+            return true
+        } else {
+            if(lastIndex != -1){
+                for(let i = 1; i<=10; i++){
+                    let dom = document.getElementById("slot;"+lastIndex+";"+i)
+                    dom.innerHTML = ''
+                }
+                lastIndex = -1
+            }
+            return false
+        }
+    }
+</script>

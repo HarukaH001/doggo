@@ -98,7 +98,13 @@ namespace doggo.Controllers
                     await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, claims);
                     return RedirectToAction("Index", "Home");
                 }
-                ModelState.AddModelError(string.Empty, "สมัครสมาชิกไม่สำเร็จ");
+                if(res.Data == "Duplicate Name"){
+                    ModelState.AddModelError(string.Empty, "ชื่อนี้ถูกใช้งานแล้ว");
+                } else if(res.Data == "Duplicate Email"){
+                    ModelState.AddModelError(string.Empty, "อีเมลนี้ถูกใช้งานแล้ว");
+                } else {
+                    ModelState.AddModelError(string.Empty, "สมัครสมาชิกไม่สำเร็จ");
+                }
             }
             return View(credential);
         }
@@ -148,7 +154,7 @@ namespace doggo.Controllers
         public async Task<IActionResult> Toggle(int id)
         {
             var res = await _userService.ToggleLock(id);
-            return RedirectToAction("Users");
+            return Redirect(Request.Headers["Referer"].ToString());
         }
 
         [Authorize(Roles = "Admin")]

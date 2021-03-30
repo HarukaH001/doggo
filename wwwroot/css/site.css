@@ -60,6 +60,7 @@ nav section{
 }
 
 .center-nav .wrapper{
+    width: auto;
     font-size: 18px;
     font-weight: 500;
 }

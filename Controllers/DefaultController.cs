@@ -50,5 +50,13 @@ namespace doggo.Controllers{
             var users =  _itemService.StockSummary();
             return Ok(users);
         }
+
+        [Authorize(Roles = "Admin")]
+        [HttpGet]
+        public async Task<IActionResult> TimeTable(int id)
+        {
+            var data =  await _itemService.GetReservationByItemId(id);
+            return Ok(data);
+        }
     }
 }

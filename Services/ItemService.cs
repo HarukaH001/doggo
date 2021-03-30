@@ -19,10 +19,13 @@ namespace doggo.Services
         IEnumerable<StockRecordDTO> GetStockRecordById(int id);
         ItemInfoView FullItemInfo(int id);
         Task<IEnumerable<ItemDTO>> GetItems();
-        Task<ItemInfoView> AddById(int id, int amount);
-        Task<ItemInfoView> DeleteById(int id, int amount);
+        Task AddById(int id, int amount);
+        Task DeleteById(int id, int amount);
         IEnumerable<HistoryView> GetHistoryById(int userId);
         Task<Backpass> DeleteReservationById(int id);
+        Task<Backpass> BatchDeleteReservation(int itemId, int userId, DateTime reserveDate, List<int> slots);
+        Task<TimeTableView> GetReservationByItemId(int id);
+        Task<TimeTableView> GetReservationByItemId(int id, DateTime reserveDate);
     }
 
     public class ItemService : IItemService
@@ -99,7 +102,7 @@ namespace doggo.Services
         public async Task<IEnumerable<ItemDTO>> GetItems(){
             return await db.Item.ToListAsync();
         }
-        public async Task<ItemInfoView> AddById(int id, int amount){
+        public async Task AddById(int id, int amount){
             ItemStockDTO isd = new ItemStockDTO {
                 ItemId=id,
                 Type="Increment",
@@ -109,10 +112,8 @@ namespace doggo.Services
 
             db.Add(isd);
             await db.SaveChangesAsync();
-
-            return FullItemInfo(id);
         }
-        public async Task<ItemInfoView> DeleteById(int id, int amount){
+        public async Task DeleteById(int id, int amount){
             ItemStockDTO isd = new ItemStockDTO {
                 ItemId=id,
                 Type="Decrement",
@@ -122,8 +123,6 @@ namespace doggo.Services
 
             db.Add(isd);
             await db.SaveChangesAsync();
-
-            return FullItemInfo(id);
         }
         public IEnumerable<HistoryView> GetHistoryById(int userId){
             var res = (
@@ -153,6 +152,54 @@ namespace doggo.Services
             {
                 Error = false,
                 Data = "Deleted"
+            };
+        }
+        public async Task<Backpass> BatchDeleteReservation(int itemId, int userId, DateTime reserveDate, List<int> slots)
+        {
+            slots.ForEach(iter => {
+                var res = db.ReservationRecord.FirstOrDefault(record => record.ItemId==itemId & record.UserId==userId & record.ReserveDate==reserveDate & record.Timeslot==iter);
+                db.ReservationRecord.Remove(res);
+            });
+            await db.SaveChangesAsync();
+            
+            return new Backpass
+            {
+                Error = false,
+                Data = "Deleted"
+            };
+        }
+        public async Task<TimeTableView> GetReservationByItemId(int id){
+            return await GetReservationByItemId(id, DateTime.Today);
+        }
+        public async Task<TimeTableView> GetReservationByItemId(int id, DateTime reserveDate){
+            var res = db.TimeTable.FromSqlRaw(
+                "select i.Id," +
+                        "i.UserId," +
+                        "u.Name," +
+                        "group_concat(i.Timeslot order by i.Timeslot ASC) as Timeslot " +
+                "from `ReservationRecord` as i "  +
+                "inner join `User` as u " +
+                "on i.UserId=u.Id " +
+                "where i.ItemId=" + id + " and i.ReserveDate='" + (reserveDate.ToString("yyyy-MM-ddTHH:mm:ssZ")) + "' " +
+                "group by i.UserId, i.ReserveDate " +
+                "order by i.UserId"
+                );
+            List<TimeTable> tb = new List<TimeTable>();
+            
+            await res.ForEachAsync(iter => {
+                var lst = iter.Timeslot.Split(',').Select(Int32.Parse).ToList();
+                tb.Add(new TimeTable{
+                    UserId=iter.UserId,
+                    Name=iter.Name,
+                    Timeslot=lst
+                });
+            });
+
+            return new TimeTableView{
+                ItemId=id,
+                ItemName=db.Item.FirstOrDefault(d=>d.Id==id).Name,
+                ReserveDate=reserveDate,
+                Table=tb
             };
         }
     }
