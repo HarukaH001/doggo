@@ -1,6 +1,5 @@
-### Generate Scaffold Home
-
-dotnet aspnet-codegenerator controller -name CONTROLLERNAME -m MODELNAME -dc CONTEXTNAME --relativeFolderPath Controllers --useDefaultLayout --referenceScriptLibraries
+### Tool Rent System For Laboratory
+## Software Studio, Semester 2 Academic Year 2020, Computer Engineering, KMIL
 
 ### Todo Backlog for Done Task
 
