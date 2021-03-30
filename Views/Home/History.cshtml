@@ -1,4 +1,65 @@
+@model IEnumerable<doggo.Models.HistoryView>
 @{
     ViewData["Title"] = "History";
 }
-@ViewData["Title"]
+<div class="head">รายการจอง</div>
+<div class="table-wrapper">
+    <table>
+        <thead>
+            <tr>
+                <th>รหัส</th>
+                <th>อุปกรณ์</th>
+                <th>ห้อง</th>
+                <th>เวลาที่จอง</th>
+                <th>วันที่่จอง</th>
+                <th>วันที่่ทำรายการ</th>
+                <th>การจัดการ</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach(var item in Model){
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Id)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.ItemName)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.ItemLocation)
+                    </td>
+                    <td>
+                        @((item.Timeslot + 8)+".00-"+(item.Timeslot + 9)+".00")
+                    </td>
+                    <td>
+                        @(item.ReserveDate.ToShortDateString())
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.CreatedDate)
+                    </td>
+                    <td id="actions">
+                        @if(true){
+                            <div class="actions-wrapper">
+                                <a asp-controller="Home" asp-action="DeleteReservation" asp-route-id="@item.Id" onclick="return DeleteHandler(this)" id="@item.Id">
+                                    <span class="iconify" data-inline="false" data-icon="bx:bx-trash" title="ลบ"></span>
+                                </a>
+                            </div>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<script>
+
+    function DeleteHandler(e, item){
+        const keys = e.id.split(";")
+        if(confirm("ยืนยันที่จะทำการยกเลิกการจองรหัส " + keys[0])){
+            return true
+        } else {
+            return false
+        }
+    }
+</script>

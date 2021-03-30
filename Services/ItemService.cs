@@ -21,6 +21,8 @@ namespace doggo.Services
         Task<IEnumerable<ItemDTO>> GetItems();
         Task<ItemInfoView> AddById(int id, int amount);
         Task<ItemInfoView> DeleteById(int id, int amount);
+        IEnumerable<HistoryView> GetHistoryById(int userId);
+        Task<Backpass> DeleteReservationById(int id);
     }
 
     public class ItemService : IItemService
@@ -122,6 +124,36 @@ namespace doggo.Services
             await db.SaveChangesAsync();
 
             return FullItemInfo(id);
+        }
+        public IEnumerable<HistoryView> GetHistoryById(int userId){
+            var res = (
+                from rec in db.ReservationRecord
+                join item in db.Item
+                on rec.ItemId equals item.Id
+                where rec.UserId==userId
+                orderby rec.Id descending
+                select new HistoryView {
+                    Id=rec.Id,
+                    ItemName=item.Name,
+                    ItemLocation=item.Location,
+                    Timeslot=rec.Timeslot,
+                    ReserveDate=rec.ReserveDate,
+                    CreatedDate=rec.CreatedDate
+                }
+            );
+
+            return res;
+        }
+        public async Task<Backpass> DeleteReservationById(int id)
+        {
+            var record = await db.ReservationRecord.FirstOrDefaultAsync(d=>d.Id==id);
+            db.Remove(record);
+            await db.SaveChangesAsync();
+            return new Backpass
+            {
+                Error = false,
+                Data = "Deleted"
+            };
         }
     }
 }

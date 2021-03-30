@@ -84,13 +84,20 @@ namespace doggo.Controllers
         [Route("[action]")]
         public IActionResult History()
         {
-            return View();
+            var userId = int.Parse(User.FindFirst("Id").Value);
+            var data = _itemService.GetHistoryById(userId);
+            return View(data);
+        }
+        public async Task<IActionResult> DeleteReservation(int id)
+        {
+            var res = await _itemService.DeleteReservationById(id);
+            return RedirectToAction("History");
         }
 
-        // [Route("{*url}", Order = 999)]
-        // public IActionResult CatchAll()
-        // {
-        //     return RedirectToAction(nameof(Index));
-        // }
+        [Route("{*url:regex(^(?!api).*$)}", Order = 999)]
+        public IActionResult CatchAll()
+        {
+            return RedirectToAction(nameof(Index));
+        }
     }
 }
