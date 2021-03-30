@@ -1,8 +1,5 @@
 ## Tool Rent System For Laboratory
-### Software Studio
-#### Semester 2 of 2020
-#### Computer Engineering
-#### King Mongkut's Institute of Technology Ladkrabang
+### Software Studio, CE, KMITL
 
 ### Todo Backlog for Done Task
 
