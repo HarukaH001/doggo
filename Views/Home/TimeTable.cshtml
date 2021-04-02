@@ -4,7 +4,12 @@
     IEnumerable<TimeTable> table = Model.Table;
     var tableIndex = table.Count();
 }
-<div class="head">ตารางเวลา @Model.ItemName</div>
+<div class="head-wrapper">
+    <div class="head">ตารางเวลา @Model.ItemName</div>
+    <form class="filter" asp-action="TimeTable">
+        <input type="date" asp-for="ReserveDate" min="2021-01-01" max="2025-12-31" onchange="this.form.submit()"/>
+    </form>
+</div>
 <div class="table-wrapper">
     <table>
         <thead>
@@ -133,5 +138,9 @@
             }
             return false
         }
+    }
+
+    function DateHandler (e) {
+        console.log('handler')
     }
 </script>

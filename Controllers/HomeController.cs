@@ -80,6 +80,16 @@ namespace doggo.Controllers
             return View(res);
         }
 
+        [HttpPost]
+        [Authorize(Roles = "Admin")]
+        [Route("[controller]/Info/[action]/{id}")]
+        public async Task<IActionResult> TimeTable(int id, TimeTableView model)
+        {
+            ViewData["Id"] = id;
+            var res = await _itemService.GetReservationByItemId(id, model.ReserveDate);
+            return View(res);
+        }
+
         [Authorize(Roles = "User")]
         [Route("[action]")]
         public IActionResult History()
