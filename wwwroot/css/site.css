@@ -81,8 +81,18 @@ nav section{
     z-index: 1;
     width: 420px;
     display: flex;
-    justify-content: space-evenly;
     font-size: 24px;
+}
+
+.ico-wrap{
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    width: 140px;
+}
+
+.ico-wrap svg{
+    transform: translateX(50%) !important;
 }
 
 .hide{

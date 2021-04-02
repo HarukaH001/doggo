@@ -20,8 +20,8 @@
                     @if(User.Identity.IsAuthenticated){
                         var hide1 = Context.Request.Path.ToString().ToLower().Contains("home/") ? "" : "hide";
                         var hide2 = Context.Request.Path.ToString().ToLower().Contains("/timetable") ? "" : "hide";
-                        <span class="iconify @hide1" data-inline="false" data-icon="fluent:caret-right-24-filled"></span>
-                        <span class="iconify @hide2" data-inline="false" data-icon="fluent:caret-right-24-filled"></span>
+                        <div class="ico-wrap"><span class="iconify @hide1" data-inline="false" data-icon="fluent:caret-right-24-filled"></span></div>
+                        <div class="ico-wrap"><span class="iconify @hide2" data-inline="false" data-icon="fluent:caret-right-24-filled"></span></div>
                     }
                 </div>
                 <section class="left-nav">
