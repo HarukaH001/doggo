@@ -13,7 +13,9 @@ using doggo.Models;
 using doggo.Services;
 
 namespace doggo.Controllers{
-    [Authorize(AuthenticationSchemes =  JwtBearerDefaults.AuthenticationScheme)]
+    // [Authorize(AuthenticationSchemes =  JwtBearerDefaults.AuthenticationScheme)]
+    
+    [AllowAnonymous]
     [Route("api/[action]")]
     [ApiController]
     public class DefaultController : Controller
@@ -35,7 +37,7 @@ namespace doggo.Controllers{
             return backpass;
         }
 
-        [Authorize(Roles = "Admin")]
+        //[Authorize(Roles = "Admin")]
         [HttpGet]
         public IActionResult Users()
         {
@@ -43,7 +45,7 @@ namespace doggo.Controllers{
             return Ok(users);
         }
 
-        [Authorize(Roles = "Admin")]
+        //[Authorize(Roles = "Admin")]
         [HttpGet]
         public IActionResult StockSummary()
         {
@@ -51,12 +53,22 @@ namespace doggo.Controllers{
             return Ok(users);
         }
 
-        [Authorize(Roles = "Admin")]
+        //[Authorize(Roles = "Admin")]
         [HttpGet]
         public async Task<IActionResult> TimeTable(int id)
         {
             var data =  await _itemService.GetReservationByItemId(id);
             return Ok(data);
         }
+
+        [HttpGet]
+        public async Task<IActionResult> ReserveAvailable(int? year, int? month, int? day)
+        {
+            var data = new ReserveAvailable();
+            if(year == null || month == null || day == null) data =  await _itemService.GetReserveAvailables(DateTime.Today);
+            else  data = await _itemService.GetReserveAvailables(new DateTime(year.Value, month.Value, day.Value));
+            return Ok(data);
+        }
+
     }
 }

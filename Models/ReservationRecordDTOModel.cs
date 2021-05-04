@@ -10,7 +10,7 @@ namespace doggo.Models
         public int UserId { get; set; }
         public int ExternalId { get; set; }
         public int Timeslot { get; set; }
-        public DateTime ReserveDate { get; set; }
+        public DateTime ReserveDate { get; set; } 
         public DateTime CreatedDate { get; set; }
     }
 }

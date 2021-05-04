@@ -26,6 +26,7 @@ namespace doggo.Services
         Task<Backpass> BatchDeleteReservation(int itemId, int userId, DateTime reserveDate, List<int> slots);
         Task<TimeTableView> GetReservationByItemId(int id);
         Task<TimeTableView> GetReservationByItemId(int id, DateTime reserveDate);
+        Task<ReserveAvailable> GetReserveAvailables(DateTime selectedDate);
     }
 
     public class ItemService : IItemService
@@ -138,7 +139,7 @@ namespace doggo.Services
                     Timeslot=rec.Timeslot,
                     ReserveDate=rec.ReserveDate,
                     CreatedDate=rec.CreatedDate
-                }
+                } 
             );
 
             return res;
@@ -201,6 +202,77 @@ namespace doggo.Services
                 ReserveDate=reserveDate,
                 Table=tb
             };
+        }
+
+        public async Task<ReserveAvailable> GetReserveAvailables(DateTime selectedDate){   
+            var records = db.ReservationRecord.Where(rec => rec.ReserveDate == selectedDate);
+            var stocks = StockSummary();
+            Console.WriteLine(stocks);
+            ReserveAvailable reserveAvailable = new ReserveAvailable{
+                reserveList = new List<ReserveItem>()
+            };
+            stocks.ToList().ForEach(item => {
+                ReserveItem reserveItem = new ReserveItem{
+                    itemId = item.Id,
+                    name = item.Name,
+                    location = item.Location,
+                    amount = new ReserveItemAmount{
+                        t0910 = item.Current,
+                        t1011 = item.Current,
+                        t1112 = item.Current,
+                        t1213 = item.Current,
+                        t1314 = item.Current,
+                        t1415 = item.Current,
+                        t1516 = item.Current,
+                        t1617 = item.Current,
+                        t1718 = item.Current,
+                        t1819 = item.Current
+                    }
+                };
+                reserveAvailable.reserveList.Add(reserveItem);
+            });
+
+            reserveAvailable.reserveList.ForEach(reserveItem => {
+                records.ToList().ForEach(rec => {
+                    if(rec.ItemId == reserveItem.itemId){
+                        switch (rec.Timeslot)
+                        {
+                            case 1:
+                                reserveItem.amount.t0910 -= 1;
+                                break;
+                            case 2:
+                                reserveItem.amount.t1011 -= 1;
+                                break;
+                            case 3:
+                                reserveItem.amount.t1112 -= 1;
+                                break;
+                            case 4:
+                                reserveItem.amount.t1213 -= 1;
+                                break;
+                            case 5:
+                                reserveItem.amount.t1314 -= 1;
+                                break;
+                            case 6:
+                                reserveItem.amount.t1415 -= 1;
+                                break;
+                            case 7:
+                                reserveItem.amount.t1516 -= 1;
+                                break;
+                            case 8:
+                                reserveItem.amount.t1617 -= 1;
+                                break;
+                            case 9:
+                                reserveItem.amount.t1718 -= 1;
+                                break;
+                            default:
+                                reserveItem.amount.t1819 -= 1;
+                                break;
+                        }
+                    }
+                });
+            });
+
+            return reserveAvailable;
         }
     }
 }
