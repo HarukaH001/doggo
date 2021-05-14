@@ -12,9 +12,10 @@ using doggo.Data;
 using doggo.Models;
 using doggo.Services;
 
-namespace doggo.Controllers{
+namespace doggo.Controllers
+{
     // [Authorize(AuthenticationSchemes =  JwtBearerDefaults.AuthenticationScheme)]
-    
+
     [AllowAnonymous]
     [Route("api/[action]")]
     [ApiController]
@@ -41,7 +42,7 @@ namespace doggo.Controllers{
         [HttpGet]
         public IActionResult Users()
         {
-            var users =  _userService.GetAll();
+            var users = _userService.GetAll();
             return Ok(users);
         }
 
@@ -49,7 +50,7 @@ namespace doggo.Controllers{
         [HttpGet]
         public IActionResult StockSummary()
         {
-            var users =  _itemService.StockSummary();
+            var users = _itemService.StockSummary();
             return Ok(users);
         }
 
@@ -57,7 +58,7 @@ namespace doggo.Controllers{
         [HttpGet]
         public async Task<IActionResult> TimeTable(int id)
         {
-            var data =  await _itemService.GetReservationByItemId(id);
+            var data = await _itemService.GetReservationByItemId(id);
             return Ok(data);
         }
 
@@ -65,9 +66,18 @@ namespace doggo.Controllers{
         public async Task<IActionResult> ReserveAvailable(int? year, int? month, int? day)
         {
             var data = new ReserveAvailable();
-            if(year == null || month == null || day == null) data =  await _itemService.GetReserveAvailables(DateTime.Today);
-            else  data = await _itemService.GetReserveAvailables(new DateTime(year.Value, month.Value, day.Value));
+            if (year == null || month == null || day == null) data = await _itemService.GetReserveAvailables(DateTime.Today);
+            else data = await _itemService.GetReserveAvailables(new DateTime(year.Value, month.Value, day.Value));
             return Ok(data);
+        }
+
+        [HttpPost]
+        public async Task AddReservationItem([FromBody] ReservationItem reservation)
+        {
+            Console.WriteLine("-----------------------------------------------------------------------");
+            Console.WriteLine(reservation);
+            Console.WriteLine("-----------------------------------------------------------------------");
+            await _itemService.AddReservationItem(reservation);
         }
 
     }

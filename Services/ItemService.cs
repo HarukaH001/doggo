@@ -27,6 +27,8 @@ namespace doggo.Services
         Task<TimeTableView> GetReservationByItemId(int id);
         Task<TimeTableView> GetReservationByItemId(int id, DateTime reserveDate);
         Task<ReserveAvailable> GetReserveAvailables(DateTime selectedDate);
+        Task AddReservationItem(ReservationItem reservation);
+
     }
 
     public class ItemService : IItemService
@@ -39,114 +41,131 @@ namespace doggo.Services
             _appSettings = appSettings.Value;
             db = context;
         }
-        
-        public IEnumerable<StockSummaryDTO> StockSummary(){
+
+        public IEnumerable<StockSummaryDTO> StockSummary()
+        {
             var res = (
                 from i in db.Item
-                join s in (from rs in db.ItemStock group rs by rs.ItemId into ss
-                select new {
-                    ItemId=ss.Key,
-                    Current=ss.Sum(d => (Int32)(d.Type=="Increment"?d.Amount:(d.Amount * -1))),
-                    Increment=ss.Sum(d => (Int32)(d.Type=="Increment"?d.Amount:0)),
-                    Decrement=ss.Sum(d => (Int32)(d.Type=="Decrement"?d.Amount:0))
-                }) on i.Id equals s.ItemId into gis
+                join s in (from rs in db.ItemStock
+                           group rs by rs.ItemId into ss
+                           select new
+                           {
+                               ItemId = ss.Key,
+                               Current = ss.Sum(d => (Int32)(d.Type == "Increment" ? d.Amount : (d.Amount * -1))),
+                               Increment = ss.Sum(d => (Int32)(d.Type == "Increment" ? d.Amount : 0)),
+                               Decrement = ss.Sum(d => (Int32)(d.Type == "Decrement" ? d.Amount : 0))
+                           }) on i.Id equals s.ItemId into gis
                 from s in gis.DefaultIfEmpty()
-                select new StockSummaryDTO {
-                    Id=i.Id,
-                    Name=i.Name,
-                    Location=i.Location,
-                    Current=s!=null?s.Current:0,
-                    Increment=s!=null?s.Increment:0,
-                    Decrement=s!=null?s.Decrement:0
+                select new StockSummaryDTO
+                {
+                    Id = i.Id,
+                    Name = i.Name,
+                    Location = i.Location,
+                    Current = s != null ? s.Current : 0,
+                    Increment = s != null ? s.Increment : 0,
+                    Decrement = s != null ? s.Decrement : 0
                 }
             );
 
             return res;
         }
 
-        
-        public StockSummaryDTO StockSummaryById(int id){
-            return StockSummary().FirstOrDefault(m=> m.Id == id);
+
+        public StockSummaryDTO StockSummaryById(int id)
+        {
+            return StockSummary().FirstOrDefault(m => m.Id == id);
         }
-        public IEnumerable<StockRecordDTO> GetStockRecordById(int id){
+        public IEnumerable<StockRecordDTO> GetStockRecordById(int id)
+        {
             var res = (
                 from i in db.ItemStock
-                where i.ItemId==id
+                where i.ItemId == id
                 orderby i.Id descending
-                select new StockRecordDTO {
-                    Id=i.Id,
-                    Type=i.Type,
-                    Amount=i.Amount,
-                    Snapshot=(
+                select new StockRecordDTO
+                {
+                    Id = i.Id,
+                    Type = i.Type,
+                    Amount = i.Amount,
+                    Snapshot = (
                         from s in db.ItemStock
-                        where s.ItemId==id & s.Id<=i.Id
+                        where s.ItemId == id & s.Id <= i.Id
                         group s by s.ItemId into ss
-                        select new{
-                            Snapshot=ss.Sum(d => (Int32)(d.Type=="Increment"?d.Amount:(d.Amount * -1)))
+                        select new
+                        {
+                            Snapshot = ss.Sum(d => (Int32)(d.Type == "Increment" ? d.Amount : (d.Amount * -1)))
                         }).First().Snapshot,
-                    CreatedDate=i.CreatedDate
+                    CreatedDate = i.CreatedDate
                 }
             );
 
             return res;
         }
 
-        public ItemInfoView FullItemInfo(int id){
+        public ItemInfoView FullItemInfo(int id)
+        {
             var StockSummary = StockSummaryById(id);
             var StockRecord = GetStockRecordById(id);
 
-            return new ItemInfoView {
-                StockSummary=StockSummary,
-                StockRecord=StockRecord
+            return new ItemInfoView
+            {
+                StockSummary = StockSummary,
+                StockRecord = StockRecord
             };
         }
-        public async Task<IEnumerable<ItemDTO>> GetItems(){
+        public async Task<IEnumerable<ItemDTO>> GetItems()
+        {
             return await db.Item.ToListAsync();
         }
-        public async Task AddById(int id, int amount){
-            ItemStockDTO isd = new ItemStockDTO {
-                ItemId=id,
-                Type="Increment",
-                Amount=amount,
-                CreatedDate=DateTime.Now
+        public async Task AddById(int id, int amount)
+        {
+            ItemStockDTO isd = new ItemStockDTO
+            {
+                ItemId = id,
+                Type = "Increment",
+                Amount = amount,
+                CreatedDate = DateTime.Now
             };
 
             db.Add(isd);
             await db.SaveChangesAsync();
         }
-        public async Task DeleteById(int id, int amount){
-            ItemStockDTO isd = new ItemStockDTO {
-                ItemId=id,
-                Type="Decrement",
-                Amount=amount,
-                CreatedDate=DateTime.Now
+        public async Task DeleteById(int id, int amount)
+        {
+            ItemStockDTO isd = new ItemStockDTO
+            {
+                ItemId = id,
+                Type = "Decrement",
+                Amount = amount,
+                CreatedDate = DateTime.Now
             };
 
             db.Add(isd);
             await db.SaveChangesAsync();
         }
-        public IEnumerable<HistoryView> GetHistoryById(int userId){
+        public IEnumerable<HistoryView> GetHistoryById(int userId)
+        {
             var res = (
                 from rec in db.ReservationRecord
                 join item in db.Item
                 on rec.ItemId equals item.Id
-                where rec.UserId==userId
+                where rec.UserId == userId
                 orderby rec.Id descending
-                select new HistoryView {
-                    Id=rec.Id,
-                    ItemName=item.Name,
-                    ItemLocation=item.Location,
-                    Timeslot=rec.Timeslot,
-                    ReserveDate=rec.ReserveDate,
-                    CreatedDate=rec.CreatedDate
-                } 
+                select new HistoryView
+                {
+                    Id = rec.Id,
+                    ItemName = item.Name,
+                    ItemLocation = item.Location,
+                    Timeslot = rec.Timeslot,
+                    ReserveDate = rec.ReserveDate,
+                    CreatedDate = rec.CreatedDate
+                }
             );
 
             return res;
         }
         public async Task<Backpass> DeleteReservationById(int id)
         {
-            var record = await db.ReservationRecord.FirstOrDefaultAsync(d=>d.Id==id);
+            var record = await db.ReservationRecord.FirstOrDefaultAsync(d => d.Id == id);
             db.Remove(record);
             await db.SaveChangesAsync();
             return new Backpass
@@ -157,28 +176,31 @@ namespace doggo.Services
         }
         public async Task<Backpass> BatchDeleteReservation(int itemId, int userId, DateTime reserveDate, List<int> slots)
         {
-            slots.ForEach(iter => {
-                var res = db.ReservationRecord.FirstOrDefault(record => record.ItemId==itemId & record.UserId==userId & record.ReserveDate==reserveDate & record.Timeslot==iter);
+            slots.ForEach(iter =>
+            {
+                var res = db.ReservationRecord.FirstOrDefault(record => record.ItemId == itemId & record.UserId == userId & record.ReserveDate == reserveDate & record.Timeslot == iter);
                 db.ReservationRecord.Remove(res);
             });
             await db.SaveChangesAsync();
-            
+
             return new Backpass
             {
                 Error = false,
                 Data = "Deleted"
             };
         }
-        public async Task<TimeTableView> GetReservationByItemId(int id){
+        public async Task<TimeTableView> GetReservationByItemId(int id)
+        {
             return await GetReservationByItemId(id, DateTime.Today);
         }
-        public async Task<TimeTableView> GetReservationByItemId(int id, DateTime reserveDate){
+        public async Task<TimeTableView> GetReservationByItemId(int id, DateTime reserveDate)
+        {
             var res = db.TimeTable.FromSqlRaw(
                 "select i.Id," +
                         "i.UserId," +
                         "u.Name," +
                         "group_concat(i.Timeslot order by i.Timeslot ASC) as Timeslot " +
-                "from `ReservationRecord` as i "  +
+                "from `ReservationRecord` as i " +
                 "inner join `User` as u " +
                 "on i.UserId=u.Id " +
                 "where i.ItemId=" + id + " and i.ReserveDate='" + (reserveDate.ToString("yyyy-MM-ddTHH:mm:ssZ")) + "' " +
@@ -186,37 +208,45 @@ namespace doggo.Services
                 "order by i.UserId"
                 );
             List<TimeTable> tb = new List<TimeTable>();
-            
-            await res.ForEachAsync(iter => {
+
+            await res.ForEachAsync(iter =>
+            {
                 var lst = iter.Timeslot.Split(',').Select(Int32.Parse).ToList();
-                tb.Add(new TimeTable{
-                    UserId=iter.UserId,
-                    Name=iter.Name,
-                    Timeslot=lst
+                tb.Add(new TimeTable
+                {
+                    UserId = iter.UserId,
+                    Name = iter.Name,
+                    Timeslot = lst
                 });
             });
 
-            return new TimeTableView{
-                ItemId=id,
-                ItemName=db.Item.FirstOrDefault(d=>d.Id==id).Name,
-                ReserveDate=reserveDate,
-                Table=tb
+            return new TimeTableView
+            {
+                ItemId = id,
+                ItemName = db.Item.FirstOrDefault(d => d.Id == id).Name,
+                ReserveDate = reserveDate,
+                Table = tb
             };
         }
 
-        public async Task<ReserveAvailable> GetReserveAvailables(DateTime selectedDate){   
+        public async Task<ReserveAvailable> GetReserveAvailables(DateTime selectedDate)
+        {
             var records = db.ReservationRecord.Where(rec => rec.ReserveDate == selectedDate);
             var stocks = StockSummary();
             Console.WriteLine(stocks);
-            ReserveAvailable reserveAvailable = new ReserveAvailable{
+            ReserveAvailable reserveAvailable = new ReserveAvailable
+            {
                 reserveList = new List<ReserveItem>()
             };
-            stocks.ToList().ForEach(item => {
-                ReserveItem reserveItem = new ReserveItem{
+            stocks.ToList().ForEach(item =>
+            {
+                ReserveItem reserveItem = new ReserveItem
+                {
                     itemId = item.Id,
                     name = item.Name,
                     location = item.Location,
-                    amount = new ReserveItemAmount{
+                    amount = new ReserveItemAmount
+                    {
                         t0910 = item.Current,
                         t1011 = item.Current,
                         t1112 = item.Current,
@@ -232,9 +262,12 @@ namespace doggo.Services
                 reserveAvailable.reserveList.Add(reserveItem);
             });
 
-            reserveAvailable.reserveList.ForEach(reserveItem => {
-                records.ToList().ForEach(rec => {
-                    if(rec.ItemId == reserveItem.itemId){
+            reserveAvailable.reserveList.ForEach(reserveItem =>
+            {
+                records.ToList().ForEach(rec =>
+                {
+                    if (rec.ItemId == reserveItem.itemId)
+                    {
                         switch (rec.Timeslot)
                         {
                             case 1:
@@ -273,6 +306,24 @@ namespace doggo.Services
             });
 
             return reserveAvailable;
+        }
+
+        public async Task AddReservationItem(ReservationItem reservation)
+        {
+            reservation.timeslot.ForEach(slot => 
+            {
+                ReservationRecordDTO rrd = new ReservationRecordDTO
+                {
+                    UserId = reservation.userId,
+                    ItemId = reservation.itemId,
+                    ExternalId = reservation.userId,
+                    Timeslot = slot,
+                    ReserveDate = reservation.reserveDate,
+                    CreatedDate = DateTime.Today
+                };
+                db.Add(rrd);
+            });
+            await db.SaveChangesAsync();
         }
     }
 }
