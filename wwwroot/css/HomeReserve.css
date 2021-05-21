@@ -1,0 +1,139 @@
+.checkbox {
+  display: flex;
+  font-size: 18px;
+  align-items: center;
+  width: 185px;
+}
+
+.flex {
+  display: flex;
+}
+
+.absolute {
+  position: absolute;
+}
+
+.relative {
+  position: relative;
+}
+
+.align-center {
+  align-items: center;
+}
+
+.mx-auto {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.my-auto {
+  margin-top: auto;
+  margin-bottom: auto;
+}
+
+.clear-btn {
+  color: white;
+  background: #4e4e4e;
+  border: 2px solid #4e4e4e;
+  box-sizing: border-box;
+  border-radius: 2px;
+  width: 45px;
+  text-align: center;
+  margin-left: auto;
+  cursor: pointer;
+}
+
+.justify-center {
+  justify-items: center;
+}
+
+.checkbox > input[type="checkbox"] {
+  display: none;
+}
+
+.checkbox > input[type="checkbox"] + p + div {
+  width: 45px;
+  height: 21px;
+  background: #ffffff;
+  border: 2px solid #cbcbcb;
+  box-sizing: border-box;
+  border-radius: 5px;
+  margin-left: auto;
+}
+
+.checkbox > input[type="checkbox"]:disabled + p + div {
+  background: #000000;
+  border: none;
+}
+
+.checkbox > input[type="checkbox"]:not(:disabled):checked + p + div {
+  background: #44d15b;
+  border: none;
+}
+
+input[type="date"] {
+  border: 2px solid #cbcbcb;
+  border-radius: 5px;
+  padding: 11px 7px;
+  width: 188px;
+}
+.grey-box {
+  width: 45px;
+  height: 21px;
+  background: #ffffff;
+  border: 2px solid #cbcbcb;
+  box-sizing: border-box;
+  border-radius: 5px;
+  margin-left: auto;
+}
+.black-box {
+  width: 45px;
+  height: 21px;
+  background: #000000;
+  border: none;
+  box-sizing: border-box;
+  border-radius: 5px;
+  margin-left: auto;
+}
+
+.green-box {
+  width: 45px;
+  height: 21px;
+  background: #44d15b;
+  border: none;
+  box-sizing: border-box;
+  border-radius: 5px;
+  margin-left: auto;
+}
+
+.mx-4 {
+  margin-left: 1rem;
+  margin-right: 1rem;
+}
+
+.w-full {
+  width: 100%;
+}
+
+.sum-text {
+  font-family: Prompt;
+  font-style: normal;
+  font-weight: normal;
+  font-size: 24px;
+  line-height: 27px;
+}
+
+.flex-auto {
+  flex: 1 1 auto;
+}
+.m-0 {
+  margin: 0;
+}
+
+.p-4 {
+  padding: 1rem;
+}
+
+p {
+  margin: 0.25rem;
+}

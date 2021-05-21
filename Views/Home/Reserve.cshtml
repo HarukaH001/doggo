@@ -1,5 +1,223 @@
 @{
-    ViewData["Title"] = "Reserve";
+    ViewData["Title"] = "จองอุปกรณ์";
+    var timeslot = ViewData["TimeSlot"];
+    var today = DateTime.Today.ToString("yyyy-MM-dd");
 }
 
-@ViewData["Title"]
+<p style="font-size: 20px;">
+    @ViewData["Title"]
+</p>
+<div>
+    <div class="flex align-center w-full">
+        <input type="date" id="date" min="2013-12-25" value=@today />
+        <div class='flex align-center' style="flex: 1 1 auto">
+            <div class="green-box mx-4"></div>
+            <p>ช่วงเวลาที่จอง</p>
+            <div class="black-box mx-4"></div>
+            <p>เต็มแล้ว</p>
+            <div class="grey-box mx-4"></div>
+            <p>ช่วงเวลาที่ว่าง</p>
+            <p style="margin-left:auto;" id="current_date"></p>
+        </div>
+
+    </div>
+</div>
+
+<p style="display: none;" id="initialData">
+    @ViewData["ItemReserveInfo"]
+</p>
+<p style="display: none;" id="itemId">
+    @ViewData["Id"]
+</p>
+<p style="display: none;" id="userId">
+    @ViewData["User"]
+</p>
+<div class="flex w-full">
+    <div class='flex-auto'>
+        <div class="flex align-center justify-center" style="width: 188px;margin-top:20px">
+            <p class="mx-auto">เวลา</p>
+            <button id="clear" class="clear-btn">ล้าง</button>
+        </div>
+        <form onchange="rerender" id='form'></form>
+    </div>
+    <div class='flex-auto relative'>
+        <div class="absolute h-full"
+            style="transform:translate(-1rem,-4rem);background: #F9F9F9;width:110%;min-height:calc(100% + 4.25rem);z-index:-3">
+        </div>
+        <p class="sum-text m-0">สรุปรายการจอง</p>
+        <div class="flex w-full">
+            <p>อุปกรณ์</p>
+            <p style="width:180px; margin-left:auto;">@ViewData["Name"]</p>
+        </div>
+        <div class="flex w-full">
+            <p>ห้อง</p>
+            <p style="width:180px; margin-left:auto;">@ViewData["Loc"]</p>
+        </div>
+        <div class="flex w-full">
+            <p>วันที่ทำรายการ</p>
+            <p style="width:180px; margin-left:auto;" id="current_date_2"></p>
+        </div>
+        <div class="flex w-full">
+            <p>วันที่จอง</p>
+            <p style="width:180px; margin-left:auto;" id="task_date"></p>
+        </div>
+        <hr style="border: rgba(58, 58, 58, 0.15) 1px solid" />
+        <div class="flex w-full">
+            <div class="flex-auto">
+                <p>ช่วงเวลา</p>
+            </div>
+            <div style="width:180px;min-height:260px" id="reserved_list">
+
+            </div>
+        </div>
+        <hr />
+        <div class='flex w-full'>
+            <p>รวม</p>
+            <p style="margin-left:auto" id="sum">0</p>
+        </div>
+        <div class='flex w-full'>
+            <p style='margin-left:auto;color:red;text-align:right'>
+                ***กรุณาจองตามเวลาที่ใช้จริงหากตรวจพบว่ามีการจองที่ผิดปกติ <br />
+                ระบบจะขอระงับการจองของท่านโดยไม่แจ้งให้ทราบล่วงหน้า
+            </p>
+        </div>
+        <div class="flex w-full">
+            <button onclick="window.location.replace('/Home')"
+                style="color:white;background: #414141;border: 1px solid #414141;box-sizing: border-box;border-radius: 5px;margin-left: auto;">
+                <p style="font-family: 'Prompt',san-serif ">ยกเลิก</p>
+            </button>
+            <button id="submit" disabled
+                style="background: #FFFFFF;border: 1px solid #414141;box-sizing: border-box;border-radius: 5px; margin-left: 20px;">
+                <p style="font-family: 'Prompt',san-serif ">ยืนยัน</p>
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const item_id = document.getElementById("itemId").innerText
+    const user_id = document.getElementById("userId").innerText
+    const data = document.getElementById("initialData")
+    const form = document.getElementById("form")
+    const date = document.getElementById("date")
+    const sum_list = document.getElementById("sum")
+    const reserved_list = document.getElementById("reserved_list")
+    const current_date = (new Intl.DateTimeFormat('th-TH', { dateStyle: "long", timeStyle: "short" }).format(new Date())) + ' น.'
+    document.getElementById('current_date').innerText = current_date
+    document.getElementById('current_date_2').innerText = current_date
+    document.getElementById("task_date").innerText = new Intl.DateTimeFormat('th-TH', { dateStyle: "long" }).format(new Date())
+    date.onchange = async () => {
+        console.log('dd')
+        let temp = date.value.split('-').map(v => +v)
+        temp[1] -= 1
+        date_create = new Date(...temp)
+        const res = await fetch(`/Home/reservation/${initialData.itemId}/${date.value}`)
+        initialData = await res.json()
+        document.getElementById("task_date").innerText = new Intl.DateTimeFormat('th-TH', { dateStyle: "long" }).format(date_create)
+        reserved_time = []
+        rerender()
+    }
+    let initialData = JSON.parse(data.innerText)
+    let reserved_time = []
+    let date_create = new Date()
+    date.setAttribute("min", `${date_create.getFullYear()}-${date_create.getMonth() + 1 > 9 ? ""
+        : "0"}${date_create.getMonth() + 1}-${date_create.getDate() > 9 ? ""
+            : "0"}${date_create.getDate()}`)
+    function clear() {
+        reserved_time = []
+        rerender()
+        re_list()
+    }
+    document.getElementById('clear').onclick = clear
+    function getLabel() {
+        return document.createElement('label')
+    }
+    function getCheckbox() {
+        const input = document.createElement('input')
+        input.type = "checkbox"
+        input.disabled = true
+        return input
+    }
+    function getDivBox() {
+        return document.createElement('div')
+    }
+    function getParagraph(text = "") {
+        const p = document.createElement('p')
+        p.innerText = text
+        return p
+    }
+
+    const ts = {
+        "id": "string",
+        "name": "string",
+        "location": "string",
+        "amount": [
+            "09:00-10:00",
+            "10:00-11:00",
+            "11:00-12:00",
+            "12:00-13:00",
+            "13:00-14:00",
+            "14:00-15:00",
+            "15:00-16:00",
+            "16:00-17:00",
+            "17:00-18:00",
+            "18:00-19:00"
+        ]
+    }
+
+    function rerender() {
+        console.log('rerender')
+        form.innerHTML = ""
+        ts.amount.forEach((val, index) => {
+            const slot = document.createElement('div')
+            const chkbox = getCheckbox()
+            chkbox.disabled = initialData.timeslot.includes(index + 1)
+            const div = getDivBox()
+            if (!chkbox.disabled) {
+                div.onclick = () => {
+                    chkbox.click()
+                    if (chkbox.checked) {
+                        reserved_time.push(index + 1)
+                    } else {
+                        reserved_time = reserved_time.filter(val => val !== index + 1)
+                    }
+                    re_list()
+                }
+            }
+            slot.className = "checkbox"
+            slot.appendChild(chkbox)
+            slot.appendChild(getParagraph(val))
+            slot.appendChild(div)
+            form.appendChild(slot)
+        })
+
+    }
+    function isValidDate(d) {
+        return d instanceof Date && !isNaN(d);
+    }
+    function re_list() {
+        reserved_list.innerHTML = ""
+        reserved_time.sort((a, b) => a - b).forEach((val) => {
+            reserved_list.appendChild(getParagraph(ts.amount[val - 1]))
+        })
+        sum_list.innerHTML = reserved_time.length
+        document.getElementById("submit").disabled = reserved_time.length === 0
+    }
+    document.getElementById("submit").onclick = async () => {
+        await fetch("/api/AddReservationItem", {
+            method: "POST",
+            headers: {
+                'content-type': 'application/json'
+            },
+            body: JSON.stringify({
+                timeslot: reserved_time,
+                ReserveDate: date_create.toISOString(),
+                itemId: +item_id,
+                userId: +user_id,
+            })
+        })
+        alert("success")
+        window.location.replace("/Home")
+    }
+    rerender()
+</script>

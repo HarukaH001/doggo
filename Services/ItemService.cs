@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Linq;
 using System.Text;
 using Microsoft.Extensions.Options;
@@ -28,6 +30,9 @@ namespace doggo.Services
         Task<TimeTableView> GetReservationByItemId(int id, DateTime reserveDate);
         Task<ReserveAvailable> GetReserveAvailables(DateTime selectedDate);
         Task AddReservationItem(ReservationItem reservation);
+
+        (ReservationItem, ItemDTO) GetReservationItemToday(int id);
+        (ReservationItem, ItemDTO) GetReservationItem(int id, DateTime date);
 
     }
 
@@ -310,7 +315,7 @@ namespace doggo.Services
 
         public async Task AddReservationItem(ReservationItem reservation)
         {
-            reservation.timeslot.ForEach(slot => 
+            reservation.timeslot.ForEach(slot =>
             {
                 ReservationRecordDTO rrd = new ReservationRecordDTO
                 {
@@ -324,6 +329,42 @@ namespace doggo.Services
                 db.Add(rrd);
             });
             await db.SaveChangesAsync();
+        }
+        public (ReservationItem, ItemDTO) GetReservationItemToday(int id)
+        {
+            return GetReservationItem(id, DateTime.Today);
+        }
+        public (ReservationItem, ItemDTO) GetReservationItem(int id, DateTime date)
+        {
+            var res = (from rec in db.ReservationRecord
+                       where rec.ItemId == id
+                       select new
+                       {
+                           itemId = rec.ItemId,
+                           timeslot = rec.Timeslot,
+                           reserve_date = rec.ReserveDate
+                       }
+            );
+            var itemTarget = from i in db.Item
+                             where i.Id == id
+                             select new ItemDTO
+                             {
+                                 Id = i.Id,
+                                 Location = i.Location,
+                                 Name = i.Name
+                             };
+            var format_data = res.Where(val => val.reserve_date.Date == date.Date).ToList();
+
+            ReservationItem data = new ReservationItem
+            {
+                itemId = id,
+            };
+            data.timeslot = new List<int>();
+            foreach (var item in format_data)
+            {
+                data.timeslot.Add(item.timeslot);
+            }
+            return (data, itemTarget.First());
         }
     }
 }

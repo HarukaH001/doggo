@@ -13,6 +13,8 @@ using System.Security.Claims;
 using doggo.Data;
 using doggo.Models;
 using doggo.Services;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace doggo.Controllers
 {
@@ -53,9 +55,12 @@ namespace doggo.Controllers
         public async Task<IActionResult> Info(AddDeleteItemDTO value)
         {
             var id = value.Id;
-            if(value.Type == "เพิ่มรายการ"){
+            if (value.Type == "เพิ่มรายการ")
+            {
                 await _itemService.AddById(id, value.Val);
-            } else {
+            }
+            else
+            {
                 await _itemService.DeleteById(id, value.Val);
             }
 
@@ -65,10 +70,39 @@ namespace doggo.Controllers
 
         [Authorize(Roles = "User")]
         [Route("[controller]/[action]/{id}")]
-        public IActionResult Reserve(int id)
+        public async Task<IActionResult> Reserve(int id)
         {
             ViewData["Id"] = id;
+            var (info, item) = _itemService.GetReservationItemToday(id);
+            string ww = JsonSerializer.Serialize(info);
+            ViewData["ItemReserveInfo"] = ww;
+            ViewData["Name"] = item.Name;
+            ViewData["Loc"] = item.Location;
+            ViewData["User"] = User.FindFirst("Id").Value;
+
+            var timeslot = new List<string>{"09:00-10:00",
+"10:00-11:00",
+"11:00-12:00",
+"12:00-13:00",
+"13:00-14:00",
+"14:00-15:00",
+"15:00-16:00",
+"16:00-17:00",
+"17:00-18:00",
+"18:00-19:00"};
+            ViewData["TimeSlot"] = timeslot;
             return View();
+        }
+
+        [HttpGet]
+        [Route("[controller]/reservation/{id}/{date}")]
+        public string reservationFromDate(int id, string date)
+        {
+            var d = date.Split('-').Select(val => int.Parse(val)).ToArray();
+            var target = new DateTime(d[0], d[1], d[2]); // yyyy-mm-dd
+            var (info, name) = _itemService.GetReservationItem(id, target);
+            string ww = JsonSerializer.Serialize(info);
+            return ww;
         }
 
         [Authorize(Roles = "Admin")]
@@ -88,6 +122,14 @@ namespace doggo.Controllers
             ViewData["Id"] = id;
             var res = await _itemService.GetReservationByItemId(id, model.ReserveDate);
             return View(res);
+        }
+
+        [HttpPost]
+        [Route("[controller]/Reserve")]
+        public async Task<string> ReserveItem(ReservationItem data)
+        {
+            await _itemService.AddReservationItem(data);
+            return "Success";
         }
 
         [Authorize(Roles = "User")]
