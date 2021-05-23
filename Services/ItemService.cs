@@ -150,26 +150,38 @@ namespace doggo.Services
         }
         public async Task UpdateReservationRecordById(int id)
         {
-            var records = db.ReservationRecord.Where(rec => rec.ItemId == id & rec.ReserveDate >= DateTime.Today);
+            var records = db.ReservationRecord.Where(rec => rec.ItemId == id & rec.ReserveDate.Date >= DateTime.Today).ToList().GroupBy(rec => rec.ReserveDate.Date);
             var stocks = StockSummaryById(id);
             var current = stocks.Current;
-            List<Task> exceedId = new List<Task>();
-            records.OrderBy(rec => rec.ReserveDate);
+            List<Task> exceedTask = new List<Task>();
+            List<int> exceedId = new List<int>();
             Console.WriteLine("---------------------------------------------");
-            records.ToList().ForEach(rec =>
+            foreach (var dateTime in records)
+            {
+                // Console.WriteLine("Groups that start with a vowel: {0}", wordGroup.Key);
+                foreach (var row in dateTime)
                 {
-                    // Console.WriteLine(rec.Id);
                     if(current <= 0){
-                        Console.WriteLine(rec.Id);
-                        exceedId.Add(DeleteReservationById(rec.Id));                     
+                        Console.WriteLine(row.Id);
+                        exceedId.Add(row.Id);
                     }
                     current--;
-                });
-            await Task.WhenAll(exceedId);
+                }
+                Console.WriteLine("---------------------------------------------");
+            }
             Console.WriteLine("---------------------------------------------");
-
-                     
-             
+            // Console.WriteLine("---------------------------------------------");
+            // records.ToList().ForEach(rec =>
+            //     {
+            //         // Console.WriteLine(rec.Id);
+            //         if(current <= 0){
+            //             Console.WriteLine(rec.Id);
+            //             exceedTask.Add(DeleteReservationById(rec.Id));                     
+            //         }
+            //         current--;
+            //     });
+            // await Task.WhenAll(exceedTask);
+            // Console.WriteLine("---------------------------------------------");
         }
 
         public IEnumerable<HistoryView> GetHistoryById(int userId)
@@ -261,7 +273,7 @@ namespace doggo.Services
 
         public async Task<ReserveAvailable> GetReserveAvailables(DateTime selectedDate)
         {
-            var records = db.ReservationRecord.Where(rec => rec.ReserveDate == selectedDate);
+            var records = db.ReservationRecord.Where(rec => rec.ReserveDate.Date == selectedDate.Date);
             var stocks = StockSummary();
             Console.WriteLine(stocks);
             ReserveAvailable reserveAvailable = new ReserveAvailable
@@ -349,7 +361,7 @@ namespace doggo.Services
                     ExternalId = reservation.userId,
                     Timeslot = slot,
                     ReserveDate = reservation.reserveDate,
-                    CreatedDate = DateTime.Today
+                    CreatedDate = DateTime.Now
                 };
                 db.Add(rrd);
             });
