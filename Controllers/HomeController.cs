@@ -62,6 +62,7 @@ namespace doggo.Controllers
             else
             {
                 await _itemService.DeleteById(id, value.Val);
+                await _itemService.UpdateReservationRecordById(id);
             }
 
             return RedirectToAction("Info", new { id = id });
