@@ -30,6 +30,7 @@ namespace doggo.Services
         Task<TimeTableView> GetReservationByItemId(int id, DateTime reserveDate);
         Task<ReserveAvailable> GetReserveAvailables(DateTime selectedDate);
         Task AddReservationItem(ReservationItem reservation);
+        Task UpdateReservationRecordById(int id);
 
         (ReservationItem, ItemDTO) GetReservationItemToday(int id);
         (ReservationItem, ItemDTO) GetReservationItem(int id, DateTime date);
@@ -147,6 +148,30 @@ namespace doggo.Services
             db.Add(isd);
             await db.SaveChangesAsync();
         }
+        public async Task UpdateReservationRecordById(int id)
+        {
+            var records = db.ReservationRecord.Where(rec => rec.ItemId == id & rec.ReserveDate >= DateTime.Today);
+            var stocks = StockSummaryById(id);
+            var current = stocks.Current;
+            List<Task> exceedId = new List<Task>();
+            records.OrderBy(rec => rec.ReserveDate);
+            Console.WriteLine("---------------------------------------------");
+            records.ToList().ForEach(rec =>
+                {
+                    // Console.WriteLine(rec.Id);
+                    if(current <= 0){
+                        Console.WriteLine(rec.Id);
+                        exceedId.Add(DeleteReservationById(rec.Id));                     
+                    }
+                    current--;
+                });
+            await Task.WhenAll(exceedId);
+            Console.WriteLine("---------------------------------------------");
+
+                     
+             
+        }
+
         public IEnumerable<HistoryView> GetHistoryById(int userId)
         {
             var res = (
@@ -178,7 +203,7 @@ namespace doggo.Services
                 Error = false,
                 Data = "Deleted"
             };
-        }
+        }   
         public async Task<Backpass> BatchDeleteReservation(int itemId, int userId, DateTime reserveDate, List<int> slots)
         {
             slots.ForEach(iter =>
@@ -330,10 +355,12 @@ namespace doggo.Services
             });
             await db.SaveChangesAsync();
         }
+
         public (ReservationItem, ItemDTO) GetReservationItemToday(int id)
         {
             return GetReservationItem(id, DateTime.Today);
         }
+
         public (ReservationItem, ItemDTO) GetReservationItem(int id, DateTime date)
         {
             var res = (from rec in db.ReservationRecord
