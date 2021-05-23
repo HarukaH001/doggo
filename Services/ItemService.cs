@@ -152,36 +152,35 @@ namespace doggo.Services
         {
             var records = db.ReservationRecord.Where(rec => rec.ItemId == id & rec.ReserveDate.Date >= DateTime.Today).ToList().GroupBy(rec => rec.ReserveDate.Date);
             var stocks = StockSummaryById(id);
-            var current = stocks.Current;
+            
             List<Task> exceedTask = new List<Task>();
             List<int> exceedId = new List<int>();
-            Console.WriteLine("---------------------------------------------");
-            foreach (var dateTime in records)
+            foreach (var day in records)
             {
-                // Console.WriteLine("Groups that start with a vowel: {0}", wordGroup.Key);
-                foreach (var row in dateTime)
-                {
-                    if(current <= 0){
-                        Console.WriteLine(row.Id);
-                        exceedId.Add(row.Id);
+                var current = stocks.Current;
+                int timeTemp = 0;
+                int count = 0;
+                foreach (var row in day.OrderBy(t => t.Timeslot))
+                {   
+                    if(timeTemp < row.Timeslot)
+                    {
+                        timeTemp = row.Timeslot;
+                        count = 0;
                     }
-                    current--;
+                    count++;
+                    if(count > current)
+                    {
+                        // exceedId.Add(row.Id);
+                        await DeleteReservationById(row.Id);
+                        // Console.WriteLine(row.Id);
+                    }
                 }
-                Console.WriteLine("---------------------------------------------");
             }
-            Console.WriteLine("---------------------------------------------");
-            // Console.WriteLine("---------------------------------------------");
-            // records.ToList().ForEach(rec =>
+            // exceedId.ForEach(id =>
             //     {
-            //         // Console.WriteLine(rec.Id);
-            //         if(current <= 0){
-            //             Console.WriteLine(rec.Id);
-            //             exceedTask.Add(DeleteReservationById(rec.Id));                     
-            //         }
-            //         current--;
-            //     });
-            // await Task.WhenAll(exceedTask);
-            // Console.WriteLine("---------------------------------------------");
+            //         DeleteReservationById(id);                    
+            //     });  
+           
         }
 
         public IEnumerable<HistoryView> GetHistoryById(int userId)
@@ -351,7 +350,7 @@ namespace doggo.Services
         }
 
         public async Task AddReservationItem(ReservationItem reservation)
-        {
+        {  
             reservation.timeslot.ForEach(slot =>
             {
                 ReservationRecordDTO rrd = new ReservationRecordDTO

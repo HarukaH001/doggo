@@ -116,6 +116,7 @@
         let temp = date.value.split('-').map(v => +v)
         temp[1] -= 1
         date_create = new Date(...temp)
+        console.log(date_create)
         const res = await fetch(`/Home/reservation/${initialData.itemId}/${date.value}`)
         initialData = await res.json()
         document.getElementById("task_date").innerText = new Intl.DateTimeFormat('th-TH', { dateStyle: "long" }).format(date_create)
@@ -207,6 +208,7 @@
         document.getElementById("submit").disabled = reserved_time.length === 0
     }
     document.getElementById("submit").onclick = async () => {
+        var dateSelect = new Date(date_create.getFullYear(), date_create.getMonth(), date_create.getDate(), 7)
         await fetch("/api/AddReservationItem", {
             method: "POST",
             headers: {
@@ -214,7 +216,7 @@
             },
             body: JSON.stringify({
                 timeslot: reserved_time,
-                ReserveDate: date_create.toISOString(),
+                ReserveDate: dateSelect.toISOString(),
                 itemId: +item_id,
                 userId: +user_id,
             })
@@ -223,7 +225,7 @@
         window.location.replace("/Home")
     }
     async function fetchai() {
-        const res = await fetch(`/api/ReserveAvailable?$year=${date_create.getFullYear()}&month=${date_create.getMonth() + 1}&day=${date_create.getDate()}`)
+        const res = await fetch(`/api/ReserveAvailable?year=${date_create.getFullYear()}&month=${date_create.getMonth() + 1}&day=${date_create.getDate()}`)
         const data = await res.json()
         reserv_availavle = Object.entries((data.reserveList.filter(l => +l.itemId === +item_id).pop().amount)).map(zip => {
             return zip[1]
@@ -233,4 +235,7 @@
     document.getElementById("userId").parentElement.removeChild(document.getElementById("userId"))
     document.getElementById("initialData").parentElement.removeChild(document.getElementById("initialData"))
     fetchai().then(rerender)
+    setInterval(1000, () => {
+        fetchai().then(rerender)
+    })
 </script>
