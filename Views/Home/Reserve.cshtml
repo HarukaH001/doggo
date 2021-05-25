@@ -102,6 +102,11 @@
     const date = document.getElementById("date")
     const sum_list = document.getElementById("sum")
     const reserved_list = document.getElementById("reserved_list")
+    let initialData = JSON.parse(data.innerText)
+    let reserved_time = []
+    let date_create = new Date()
+    let reserv_availavle = []
+
     const current_date = (new Intl.DateTimeFormat('th-TH', { dateStyle: "long", timeStyle: "short" }).format(new Date())) + ' น.'
     document.getElementById('current_date').innerText = current_date
     document.getElementById('current_date_2').innerText = current_date
@@ -111,15 +116,14 @@
         let temp = date.value.split('-').map(v => +v)
         temp[1] -= 1
         date_create = new Date(...temp)
+        console.log(date_create)
         const res = await fetch(`/Home/reservation/${initialData.itemId}/${date.value}`)
         initialData = await res.json()
         document.getElementById("task_date").innerText = new Intl.DateTimeFormat('th-TH', { dateStyle: "long" }).format(date_create)
         reserved_time = []
-        rerender()
+        fetchai().then(rerender)
     }
-    let initialData = JSON.parse(data.innerText)
-    let reserved_time = []
-    let date_create = new Date()
+
     date.setAttribute("min", `${date_create.getFullYear()}-${date_create.getMonth() + 1 > 9 ? ""
         : "0"}${date_create.getMonth() + 1}-${date_create.getDate() > 9 ? ""
             : "0"}${date_create.getDate()}`)
@@ -171,7 +175,7 @@
         ts.amount.forEach((val, index) => {
             const slot = document.createElement('div')
             const chkbox = getCheckbox()
-            chkbox.disabled = initialData.timeslot.includes(index + 1)
+            chkbox.disabled = reserv_availavle[index] <= 0
             const div = getDivBox()
             if (!chkbox.disabled) {
                 div.onclick = () => {
@@ -204,6 +208,7 @@
         document.getElementById("submit").disabled = reserved_time.length === 0
     }
     document.getElementById("submit").onclick = async () => {
+        var dateSelect = new Date(date_create.getFullYear(), date_create.getMonth(), date_create.getDate(), 7)
         await fetch("/api/AddReservationItem", {
             method: "POST",
             headers: {
@@ -211,7 +216,7 @@
             },
             body: JSON.stringify({
                 timeslot: reserved_time,
-                ReserveDate: date_create.toISOString(),
+                ReserveDate: dateSelect.toISOString(),
                 itemId: +item_id,
                 userId: +user_id,
             })
@@ -219,5 +224,18 @@
         alert("success")
         window.location.replace("/Home")
     }
-    rerender()
+    async function fetchai() {
+        const res = await fetch(`/api/ReserveAvailable?year=${date_create.getFullYear()}&month=${date_create.getMonth() + 1}&day=${date_create.getDate()}`)
+        const data = await res.json()
+        reserv_availavle = Object.entries((data.reserveList.filter(l => +l.itemId === +item_id).pop().amount)).map(zip => {
+            return zip[1]
+        })
+    }
+    document.getElementById("itemId").parentElement.removeChild(document.getElementById("itemId"))
+    document.getElementById("userId").parentElement.removeChild(document.getElementById("userId"))
+    document.getElementById("initialData").parentElement.removeChild(document.getElementById("initialData"))
+    fetchai().then(rerender)
+    setInterval(1000, () => {
+        fetchai().then(rerender)
+    })
 </script>
