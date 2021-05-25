@@ -244,7 +244,7 @@ namespace doggo.Services
             var user = GetById(id);
             if(user != null){
                 user.UpdatedDate = DateTime.Now;
-                user.Password = BC.HashPassword(_appSettings.DefaultPassword);
+                user.Password = BC.HashPassword("00000000");
                 try{
                     db.Update(user);
                     await db.SaveChangesAsync();
